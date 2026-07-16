@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+
+# Next.js build output
+.next
+out
+
+# Environment files - NEVER commit these
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.log
+
+# Prisma SQLite dev database
+prisma/prisma/dev.db
+prisma/prisma/dev.db-journal
+
+# Uploaded media files (served from /public/uploads)
+public/uploads/*
+!public/uploads/.gitkeep

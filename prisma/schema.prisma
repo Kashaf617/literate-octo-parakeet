@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @map("_id") @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("owner")
+  createdAt    DateTime @default(now())
+}
+
+model Customer {
+  id           String   @id @map("_id") @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  address      String?
+  city         String?
+  province     String?
+  postalCode   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+  reviews      Review[]
+}
+
+model Review {
+  id          String   @id @map("_id") @default(cuid())
+  rating      Int      @default(5)
+  title       String
+  content     String
+  status      String   @default("pending")
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AbandonedCart {
+  id          String   @id @map("_id") @default(cuid())
+  email       String
+  cartData    String
+  status      String   @default("abandoned")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @map("_id") @default(cuid())
+  name        String
+  slug        String    @unique
+  image       String?
+  description String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Collection {
+  id        String              @id @map("_id") @default(cuid())
+  name      String
+  slug      String              @unique
+  color     String              @default("#1f6fdb")
+  isActive  Boolean             @default(true)
+  sortOrder Int                 @default(0)
+  createdAt DateTime            @default(now())
+  products  ProductCollection[]
+  banners   Banner[]
+}
+
+model Product {
+  id              String              @id @map("_id") @default(cuid())
+  name            String
+  slug            String              @unique
+  description     String              @default("")
+  price           Float
+  comparePrice    Float?
+  costPrice       Float?
+  sku             String?
+  stock           Int                 @default(0)
+  images          String              @default("[]")
+  categoryId      String?
+  category        Category?           @relation(fields: [categoryId], references: [id])
+  collections     ProductCollection[]
+  status          String              @default("active")
+  isFeatured      Boolean             @default(false)
+  rating          Float               @default(4.5)
+  reviewsCount    Int                 @default(0)
+  hasVariants     Boolean             @default(false)
+  options         String?
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  orderItems      OrderItem[]
+  reviews         Review[]
+  variants        ProductVariant[]
+  celebrities     CelebrityRecommendation[]
+}
+
+model ProductVariant {
+  id            String   @id @map("_id") @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku           String?
+  price         Float
+  comparePrice  Float?
+  stock         Int      @default(0)
+  optionChoices String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Coupon {
+  id          String   @id @map("_id") @default(cuid())
+  code        String   @unique
+  type        String
+  value       Float
+  minSpend    Float?
+  usageLimit  Int?
+  usageCount  Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProductCollection {
+  id           String     @id @map("_id") @default(cuid())
+  productId    String
+  collectionId String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, collectionId])
+}
+
+model Banner {
+  id           String      @id @map("_id") @default(cuid())
+  title        String
+  subtitle     String?
+  eyebrow      String?
+  image        String
+  mobileImage  String?
+  link         String      @default("#")
+  position     String      @default("hero")
+  bgColorFrom  String      @default("#0f2542")
+  bgColorTo    String      @default("#173963")
+  textColor    String      @default("#ffffff")
+  buttonText   String      @default("Shop Now")
+  sortOrder    Int         @default(0)
+  isActive     Boolean     @default(true)
+  startsAt     DateTime?
+  endsAt       DateTime?
+  collectionId String?
+  collection   Collection? @relation(fields: [collectionId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Article {
+  id        String   @id @map("_id") @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String
+  excerpt   String?
+  image     String?
+  category  String   @default("Blog")
+  author    String   @default("BuySial")
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id              String      @id @map("_id") @default(cuid())
+  orderNumber     String      @unique
+  customerId      String?
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+  customerName    String
+  phone           String
+  email           String?
+  address         String
+  city            String
+  province        String?
+  postalCode      String?
+  notes           String?
+  items           OrderItem[]
+  subtotal        Float
+  shippingFee     Float       @default(0)
+  discount        Float       @default(0)
+  total           Float
+  paymentMethod   String      @default("cod")
+  paymentStatus   String      @default("pending")
+  paymentRef      String?
+  orderStatus     String      @default("processing")
+  courierProvider String?
+  trackingNumber  String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @map("_id") @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String
+  image     String?
+  price     Float
+  qty       Int
+}
+
+model Setting {
+  key   String @id @map("_id")
+  value String
+}
+
+model CelebrityRecommendation {
+  id          String   @id @map("_id") @default(cuid())
+  name        String
+  image       String?
+  videoUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
