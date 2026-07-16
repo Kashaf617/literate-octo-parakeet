@@ -24,13 +24,15 @@ import {
   History,
   UserCircle,
   Ticket,
-  Palette
+  Palette,
+  Users
 } from "lucide-react";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/admin/analytics", label: "Analytics", icon: <LineChart size={18} /> },
   { href: "/admin/orders", label: "Orders", icon: <ShoppingBag size={18} /> },
+  { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
   { href: "/admin/products", label: "Products", icon: <Package size={18} /> },
   { href: "/admin/categories", label: "Categories", icon: <Tags size={18} /> },
   { href: "/admin/banners", label: "Banners", icon: <ImageIcon size={18} /> },

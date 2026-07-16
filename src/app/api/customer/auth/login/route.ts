@@ -16,6 +16,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
+    if (customer.isBlocked) {
+      return NextResponse.json({ error: "Your account has been suspended. Please contact support." }, { status: 403 });
+    }
+
     const ok = await bcrypt.compare(password, customer.passwordHash);
     if (!ok) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
