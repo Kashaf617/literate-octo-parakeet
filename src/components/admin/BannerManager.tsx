@@ -27,7 +27,18 @@ export default function BannerManager() {
     
     setUploading(true);
     let uploadedCount = 0;
-    const imgbbKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+    
+    // Fetch the ImgBB key dynamically at runtime (bypasses Next.js build-time env variable limitation!)
+    let imgbbKey = "";
+    try {
+      const configRes = await fetch("/api/admin/upload-config");
+      if (configRes.ok) {
+        const configData = await configRes.json();
+        imgbbKey = configData.apiKey;
+      }
+    } catch (err) {
+      console.error("Failed to fetch upload config:", err);
+    }
 
     for (const file of validFiles) {
       const fd = new FormData();

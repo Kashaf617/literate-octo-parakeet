@@ -55,7 +55,19 @@ export default function CelebrityManager({ initialCelebrities, products }: { ini
     const file = e.target.files?.[0];
     if (!file) return;
     const fd = new FormData();
-    const imgbbKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+    
+    // Fetch the ImgBB key dynamically at runtime (bypasses Next.js build-time env variable limitation!)
+    let imgbbKey = "";
+    try {
+      const configRes = await fetch("/api/admin/upload-config");
+      if (configRes.ok) {
+        const configData = await configRes.json();
+        imgbbKey = configData.apiKey;
+      }
+    } catch (err) {
+      console.error("Failed to fetch upload config:", err);
+    }
+
     try {
       let res;
       if (imgbbKey) {
