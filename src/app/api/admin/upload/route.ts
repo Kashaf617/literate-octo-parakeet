@@ -35,10 +35,18 @@ export async function POST(req: NextRequest) {
       } else {
         const errorText = await response.text();
         console.error("ImgBB Upload API error:", errorText);
+        return NextResponse.json({ error: `ImgBB Upload failed: ${errorText}` }, { status: 400 });
       }
     }
 
-    // Fallback: Save to local filesystem (Only works locally, fails on read-only Vercel)
+    // If running in production (Vercel) and key is missing, reject immediately with clear instructions
+    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      return NextResponse.json({ 
+        error: "Image upload key is missing. Please make sure IMGBB_API_KEY is configured in your Vercel settings." 
+      }, { status: 400 });
+    }
+
+    // Fallback: Save to local filesystem (Only works locally in development mode)
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
     const filename = `${nanoid(10)}.${ext}`;
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
