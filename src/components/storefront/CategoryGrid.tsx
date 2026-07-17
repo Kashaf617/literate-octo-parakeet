@@ -38,22 +38,31 @@ export default function CategoryGrid({ categories, title, isEditMode = false }: 
     const fd = new FormData();
     fd.append("file", file);
     try {
+      console.log("CategoryGrid: uploading file:", file.name);
       const res = await fetch("/api/admin/upload", { credentials: "include", method: "POST", body: fd });
       if (res.ok) {
         const { url } = await res.json();
-        await fetch(`/api/admin/categories/${id}`, {
+        console.log("CategoryGrid: upload success, saving category image url:", url);
+        const saveRes = await fetch(`/api/admin/categories/${id}`, {
           credentials: "include",
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: url })
         });
-        window.location.reload();
+        if (saveRes.ok) {
+          window.location.reload();
+        } else {
+          alert(`Failed to save category image: ${await saveRes.text()}`);
+        }
+      } else {
+        alert(`Upload failed: ${await res.text()}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Upload error: ${err.message}`);
     }
   };
-
+ 
   const handleDrop = async (e: React.DragEvent, id: string) => {
     if (!isEditMode) return;
     e.preventDefault();
@@ -63,18 +72,29 @@ export default function CategoryGrid({ categories, title, isEditMode = false }: 
       const fd = new FormData();
       fd.append("file", file);
       try {
+        console.log("CategoryGrid: drag-drop uploading file:", file.name);
         const res = await fetch("/api/admin/upload", { credentials: "include", method: "POST", body: fd });
         if (res.ok) {
           const { url } = await res.json();
-          await fetch(`/api/admin/categories/${id}`, {
+          console.log("CategoryGrid: drag-drop upload success, saving url:", url);
+          const saveRes = await fetch(`/api/admin/categories/${id}`, {
             credentials: "include",
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ image: url })
           });
-          window.location.reload();
+          if (saveRes.ok) {
+            window.location.reload();
+          } else {
+            alert(`Failed to save dropped category image: ${await saveRes.text()}`);
+          }
+        } else {
+          alert(`Drop upload failed: ${await res.text()}`);
         }
-      } catch (err) { console.error(err); }
+      } catch (err: any) {
+        console.error(err);
+        alert(`Drop upload error: ${err.message}`);
+      }
       return;
     }
 
