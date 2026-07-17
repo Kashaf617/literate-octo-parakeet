@@ -14,10 +14,14 @@ export default function BannerManager() {
   }, []);
 
   async function fetchMedia() {
-    const res = await fetch("/api/admin/media");
-    if (res.ok) {
-      const data = await res.json();
-      setMedia(data.files || []);
+    try {
+      const res = await fetch("/api/admin/media", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setMedia(data.files || []);
+      }
+    } catch (e) {
+      console.error("fetchMedia error:", e);
     }
   }
 
@@ -32,16 +36,24 @@ export default function BannerManager() {
       const fd = new FormData();
       fd.append("file", file);
       try {
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: fd,
+          credentials: "include"
+        });
         if (res.ok) {
+          const data = await res.json();
+          console.log("Upload success, url:", data.url);
           uploadedCount++;
         } else {
-          const errText = await res.text();
+          let errText = "";
+          try { errText = (await res.json()).error; } catch { errText = await res.text(); }
           console.error("Upload failed:", errText);
-          alert(`Upload Error: ${errText}`);
+          alert(`Upload Error (${res.status}): ${errText}`);
         }
-      } catch (e) {
-        console.error(e);
+      } catch (e: any) {
+        console.error("Upload error:", e);
+        alert(`Network error: ${e.message}`);
       }
     }
     setUploading(false);

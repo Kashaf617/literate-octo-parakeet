@@ -1,6 +1,5 @@
 "use client";
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { UploadCloud, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function ImageUploader({ 
@@ -143,7 +142,7 @@ export default function ImageUploader({
       {/* Preview and Manual URL Input */}
       <div className="flex items-center gap-3 mt-2">
         <div className="w-16 h-16 rounded-lg border border-[#e2e8f0] bg-[#f8f9fa] overflow-hidden shrink-0 relative">
-          {value ? <Image src={value} alt="" fill className="object-cover" unoptimized /> : <div className="w-full h-full flex items-center justify-center text-[#94a3b8] text-[10px]">Empty</div>}
+          {value ? <img src={value} alt="Preview" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[#94a3b8] text-[10px]">Empty</div>}
         </div>
         <div className="flex-1">
           <input
