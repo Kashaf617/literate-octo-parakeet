@@ -24,6 +24,7 @@ export default function ArticleManager({ initialArticles }: { initialArticles: A
     const isNew = !("id" in editing) || !editing.id;
     const res = await fetch(isNew ? "/api/admin/articles" : `/api/admin/articles/${(editing as Article).id}`, {
       method: isNew ? "POST" : "PUT",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editing)
     });
@@ -35,12 +36,15 @@ export default function ArticleManager({ initialArticles }: { initialArticles: A
         return exists ? prev.map((a) => (a.id === saved.id ? saved : a)) : [saved, ...prev];
       });
       setEditing(null);
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      alert(`Failed to save article (${res.status}): ${errData.error || "Unknown error"}`);
     }
   }
 
   async function remove(id: string) {
     if (!confirm("Delete this article?")) return;
-    const res = await fetch(`/api/admin/articles/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/articles/${id}`, { method: "DELETE", credentials: "include" });
     if (res.ok) setArticles((prev) => prev.filter((a) => a.id !== id));
   }
 

@@ -249,6 +249,7 @@ export default function ProductForm({
 
     const res = await fetch(url, {
       method,
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...values,
@@ -266,7 +267,8 @@ export default function ProductForm({
       router.push("/admin/products");
       router.refresh();
     } else {
-      alert("Failed to save product");
+      const errData = await res.json().catch(() => ({}));
+      alert(`Failed to save product (${res.status}): ${errData.error || "Unknown error"}`);
     }
   }
 

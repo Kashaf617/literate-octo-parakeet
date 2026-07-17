@@ -14,26 +14,40 @@ export default function CategoryManager({ initial }: { initial: Category[] }) {
   async function save() {
     setSaving(true);
     const isNew = !editing.id;
-    const res = await fetch(isNew ? "/api/admin/categories" : `/api/admin/categories/${editing.id}`, {
-      method: isNew ? "POST" : "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editing)
-    });
-    setSaving(false);
-    if (res.ok) {
-      const saved = await res.json();
-      setCategories((prev) => {
-        const exists = prev.find((c) => c.id === saved.id);
-        return exists ? prev.map((c) => (c.id === saved.id ? { ...saved, _count: c._count } : c)) : [...prev, saved];
+    try {
+      const res = await fetch(isNew ? "/api/admin/categories" : `/api/admin/categories/${editing.id}`, {
+        method: isNew ? "POST" : "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editing)
       });
-      setEditing(null);
+      setSaving(false);
+      if (res.ok) {
+        const saved = await res.json();
+        setCategories((prev) => {
+          const exists = prev.find((c) => c.id === saved.id);
+          return exists ? prev.map((c) => (c.id === saved.id ? { ...saved, _count: c._count } : c)) : [...prev, saved];
+        });
+        setEditing(null);
+        alert("Category saved successfully!");
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(`Failed to save category (${res.status}): ${errData.error || "Unknown error"}`);
+      }
+    } catch (e: any) {
+      setSaving(false);
+      alert(`Network error saving category: ${e.message}`);
     }
   }
 
   async function remove(id: string) {
     if (!confirm("Delete this category? Products in it will become uncategorized.")) return;
-    const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
-    if (res.ok) setCategories((prev) => prev.filter((c) => c.id !== id));
+    const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE", credentials: "include" });
+    if (res.ok) {
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    } else {
+      alert(`Failed to delete category: ${res.status}`);
+    }
   }
 
   return (
