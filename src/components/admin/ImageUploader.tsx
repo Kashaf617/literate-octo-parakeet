@@ -26,19 +26,46 @@ export default function ImageUploader({
     
     setUploading(true);
     const uploadedUrls: string[] = [];
+    const imgbbKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
     for (const file of validFiles) {
       const fd = new FormData();
-      fd.append("file", file);
       try {
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        if (res.ok) {
-          const data = await res.json();
-          uploadedUrls.push(data.url);
-          if (onChange) onChange(data.url); // Call for single backwards compatibility
+        let url = "";
+        if (imgbbKey) {
+          // Upload directly from browser to ImgBB (Bypasses Vercel's 4.5MB Serverless Function payload limit!)
+          fd.append("image", file);
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
+            method: "POST",
+            body: fd
+          });
+          if (res.ok) {
+            const data = await res.json();
+            url = data.data.url;
+          } else {
+            console.error("Direct ImgBB upload failed:", await res.text());
+          }
+        } else {
+          // Fallback to local serverless API (For local development)
+          fd.append("file", file);
+          const res = await fetch("/api/admin/upload", {
+            method: "POST",
+            body: fd
+          });
+          if (res.ok) {
+            const data = await res.json();
+            url = data.url;
+          } else {
+            console.error("Local upload failed:", await res.text());
+          }
+        }
+
+        if (url) {
+          uploadedUrls.push(url);
+          if (onChange) onChange(url); // Call for single backwards compatibility
         }
       } catch (e) {
-        console.error(e);
+        console.error("Upload error:", e);
       }
     }
     
