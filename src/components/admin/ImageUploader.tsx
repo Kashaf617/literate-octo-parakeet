@@ -22,8 +22,21 @@ export default function ImageUploader({
   const [errorMsg, setErrorMsg] = useState("");
 
   async function handleFiles(files: FileList | File[]) {
-    const validFiles = Array.from(files).filter(f => f.type.startsWith("image/"));
-    if (validFiles.length === 0) return;
+    console.log("handleFiles called with files:", Array.from(files).map(f => ({ name: f.name, type: f.type, size: f.size })));
+    
+    const validFiles = Array.from(files).filter(f => 
+      f.type.startsWith("image/") || 
+      /\.(png|jpe?g|gif|webp|svg)$/i.test(f.name)
+    );
+    
+    if (validFiles.length === 0) {
+      const msg = "No valid image files selected (must be PNG, JPG, WEBP, GIF, or SVG)";
+      console.warn(msg);
+      setErrorMsg(msg);
+      setUploadStatus("error");
+      alert(msg);
+      return;
+    }
     
     setUploading(true);
     setUploadStatus("idle");
@@ -33,8 +46,10 @@ export default function ImageUploader({
     for (const file of validFiles) {
       // Show file size warning
       if (file.size > 8 * 1024 * 1024) {
-        setErrorMsg(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 8MB.`);
+        const msg = `File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 8MB.`;
+        setErrorMsg(msg);
         setUploadStatus("error");
+        alert(msg);
         continue;
       }
 
@@ -42,15 +57,17 @@ export default function ImageUploader({
       fd.append("file", file);
       
       try {
+        console.log("Sending POST to /api/admin/upload for file:", file.name);
         const res = await fetch("/api/admin/upload", {
           method: "POST",
           body: fd,
-          // Explicitly include credentials so the admin session cookie is sent
           credentials: "include"
         });
         
+        console.log("Upload response status:", res.status);
         if (res.ok) {
           const data = await res.json();
+          console.log("Upload success returned url:", data.url);
           uploadedUrls.push(data.url);
           if (onChange) onChange(data.url);
           setUploadStatus("success");
@@ -62,14 +79,18 @@ export default function ImageUploader({
           } catch {
             errorText = await res.text();
           }
-          console.error("Upload failed:", res.status, errorText);
-          setErrorMsg(`Upload failed (${res.status}): ${errorText}`);
+          console.error("Upload failed server response:", errorText);
+          const msg = `Upload failed (${res.status}): ${errorText}`;
+          setErrorMsg(msg);
           setUploadStatus("error");
+          alert(msg);
         }
       } catch (e: any) {
-        console.error("Upload error:", e);
-        setErrorMsg(`Network error: ${e.message}`);
+        console.error("Upload network error:", e);
+        const msg = `Network error: ${e.message}`;
+        setErrorMsg(msg);
         setUploadStatus("error");
+        alert(msg);
       }
     }
     
