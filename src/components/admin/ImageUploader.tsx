@@ -26,56 +26,23 @@ export default function ImageUploader({
     
     setUploading(true);
     const uploadedUrls: string[] = [];
-    
-    // Fetch the ImgBB key dynamically at runtime (bypasses Next.js build-time env variable limitation!)
-    let imgbbKey = "";
-    try {
-      const configRes = await fetch("/api/admin/upload-config");
-      if (configRes.ok) {
-        const configData = await configRes.json();
-        imgbbKey = configData.apiKey;
-      }
-    } catch (err) {
-      console.error("Failed to fetch upload config:", err);
-    }
 
     for (const file of validFiles) {
       const fd = new FormData();
+      fd.append("file", file);
       try {
-        let url = "";
-        if (imgbbKey) {
-          // Upload directly from browser to ImgBB (Bypasses Vercel's 4.5MB Serverless Function payload limit!)
-          fd.append("image", file);
-          const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
-            method: "POST",
-            body: fd
-          });
-          if (res.ok) {
-            const data = await res.json();
-            url = data.data.url;
-          } else {
-            const errText = await res.text();
-            console.error("Direct ImgBB upload failed:", errText);
-            alert(`ImgBB Upload Error: ${errText}`);
-          }
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: fd
+        });
+        if (res.ok) {
+          const data = await res.json();
+          uploadedUrls.push(data.url);
+          if (onChange) onChange(data.url); // Call for single backwards compatibility
         } else {
-          // Fallback to local serverless API (For local development)
-          fd.append("file", file);
-          const res = await fetch("/api/admin/upload", {
-            method: "POST",
-            body: fd
-          });
-          if (res.ok) {
-            const data = await res.json();
-            url = data.url;
-          } else {
-            console.error("Local upload failed:", await res.text());
-          }
-        }
-
-        if (url) {
-          uploadedUrls.push(url);
-          if (onChange) onChange(url); // Call for single backwards compatibility
+          const errorText = await res.text();
+          console.error("Upload failed:", errorText);
+          alert(`Upload failed: ${errorText}`);
         }
       } catch (e) {
         console.error("Upload error:", e);

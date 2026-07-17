@@ -24,6 +24,9 @@ async function main() {
   await prisma.banner.deleteMany();
   await prisma.article.deleteMany();
   await prisma.setting.deleteMany();
+  await prisma.customer.deleteMany();
+  await prisma.abandonedCart.deleteMany();
+  await prisma.upload.deleteMany();
 
   // Create Admin
   await prisma.adminUser.upsert({
