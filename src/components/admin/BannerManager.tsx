@@ -51,7 +51,13 @@ export default function BannerManager() {
           fd.append("file", file);
           res = await fetch("/api/admin/upload", { method: "POST", body: fd });
         }
-        if (res.ok) uploadedCount++;
+        if (res.ok) {
+          uploadedCount++;
+        } else {
+          const errText = await res.text();
+          console.error("Upload failed:", errText);
+          alert(`Upload Error: ${errText}`);
+        }
       } catch (e) {
         console.error(e);
       }

@@ -81,6 +81,10 @@ export default function CelebrityManager({ initialCelebrities, products }: { ini
         const data = await res.json();
         const url = imgbbKey ? data.data.url : data.url;
         setFormData({ ...formData, image: url });
+      } else {
+        const errText = await res.text();
+        console.error("Upload failed:", errText);
+        alert(`Upload Error: ${errText}`);
       }
     } catch (e) {
       console.error(e);

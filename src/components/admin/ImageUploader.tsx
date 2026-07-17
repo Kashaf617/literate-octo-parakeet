@@ -54,7 +54,9 @@ export default function ImageUploader({
             const data = await res.json();
             url = data.data.url;
           } else {
-            console.error("Direct ImgBB upload failed:", await res.text());
+            const errText = await res.text();
+            console.error("Direct ImgBB upload failed:", errText);
+            alert(`ImgBB Upload Error: ${errText}`);
           }
         } else {
           // Fallback to local serverless API (For local development)
