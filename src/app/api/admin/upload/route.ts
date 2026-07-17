@@ -12,21 +12,15 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
     if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // If ImgBB API Key is configured in environment, upload to cloud storage
     const imgbbApiKey = process.env.IMGBB_API_KEY;
     if (imgbbApiKey) {
-      const body = new URLSearchParams();
-      body.append("image", buffer.toString("base64"));
+      const body = new FormData();
+      body.append("image", file);
 
       const response = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: body.toString()
+        body
       });
 
       if (response.ok) {
@@ -39,14 +33,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // If running in production (Vercel) and key is missing, reject immediately with clear instructions
+    // If running in production (Vercel) and key is missing, reject immediately
     if (process.env.VERCEL || process.env.NODE_ENV === "production") {
       return NextResponse.json({ 
-        error: "Image upload key is missing. Please make sure IMGBB_API_KEY is configured in your Vercel settings." 
+        error: "Image upload key (IMGBB_API_KEY) is missing. Please configure it in your Vercel settings." 
       }, { status: 400 });
     }
 
     // Fallback: Save to local filesystem (Only works locally in development mode)
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
     const filename = `${nanoid(10)}.${ext}`;
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
