@@ -58,7 +58,11 @@ export default function CelebrityManager({ initialCelebrities, products }: { ini
     fd.append("file", file);
 
     try {
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: fd,
+        credentials: "include"
+      });
       if (res.ok) {
         const data = await res.json();
         setFormData({ ...formData, image: data.url });
