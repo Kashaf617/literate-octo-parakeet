@@ -8,15 +8,36 @@ export async function GET(req: NextRequest) {
   }
 
   const key = process.env.IMGBB_API_KEY;
-  const publicKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+  if (!key) {
+    return NextResponse.json({ error: "IMGBB_API_KEY is not defined in environment variables" });
+  }
+
+  // Perform a real test upload to ImgBB using their key and a tiny dummy image
+  let imgbbResult: any = null;
+  try {
+    const dummyBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const buffer = Buffer.from(dummyBase64, "base64");
+    const blob = new Blob([buffer], { type: "image/png" });
+    const body = new FormData();
+    body.append("image", blob, "test.png");
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
+      method: "POST",
+      body
+    });
+
+    const status = response.status;
+    const data = await response.json();
+    imgbbResult = { status, data };
+  } catch (err: any) {
+    imgbbResult = { error: err.message || err };
+  }
 
   return NextResponse.json({
-    IMGBB_API_KEY_exists: !!key,
-    IMGBB_API_KEY_length: key ? key.length : 0,
-    IMGBB_API_KEY_start: key ? key.substring(0, 4) + "..." : "none",
-    NEXT_PUBLIC_IMGBB_API_KEY_exists: !!publicKey,
-    NEXT_PUBLIC_IMGBB_API_KEY_length: publicKey ? publicKey.length : 0,
-    NEXT_PUBLIC_IMGBB_API_KEY_start: publicKey ? publicKey.substring(0, 4) + "..." : "none",
+    IMGBB_API_KEY_exists: true,
+    IMGBB_API_KEY_length: key.length,
+    IMGBB_API_KEY_start: key.substring(0, 4) + "...",
+    imgbb_test_upload_result: imgbbResult,
     NODE_ENV: process.env.NODE_ENV,
     VERCEL: process.env.VERCEL || "not set"
   });
