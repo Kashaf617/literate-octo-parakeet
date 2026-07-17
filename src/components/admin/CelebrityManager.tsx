@@ -55,11 +55,19 @@ export default function CelebrityManager({ initialCelebrities, products }: { ini
     const file = e.target.files?.[0];
     if (!file) return;
     const fd = new FormData();
-    fd.append("file", file);
+    const imgbbKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
     try {
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      let res;
+      if (imgbbKey) {
+        fd.append("image", file);
+        res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: fd });
+      } else {
+        fd.append("file", file);
+        res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      }
       if (res.ok) {
-        const { url } = await res.json();
+        const data = await res.json();
+        const url = imgbbKey ? data.data.url : data.url;
         setFormData({ ...formData, image: url });
       }
     } catch (e) {

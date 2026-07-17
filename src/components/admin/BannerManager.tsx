@@ -27,11 +27,19 @@ export default function BannerManager() {
     
     setUploading(true);
     let uploadedCount = 0;
+    const imgbbKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+
     for (const file of validFiles) {
       const fd = new FormData();
-      fd.append("file", file);
       try {
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        let res;
+        if (imgbbKey) {
+          fd.append("image", file);
+          res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: fd });
+        } else {
+          fd.append("file", file);
+          res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        }
         if (res.ok) uploadedCount++;
       } catch (e) {
         console.error(e);
