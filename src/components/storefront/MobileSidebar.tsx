@@ -4,7 +4,13 @@ import Link from "next/link";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-export default function MobileSidebar({ supportPhone = "+92 300 1234567" }: { supportPhone?: string }) {
+export default function MobileSidebar({ 
+  supportPhone = "+92 300 1234567",
+  categories = []
+}: { 
+  supportPhone?: string;
+  categories?: Array<{ name: string; slug: string }>;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -25,10 +31,10 @@ export default function MobileSidebar({ supportPhone = "+92 300 1234567" }: { su
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Shop All Products", href: "/search" },
-    { name: "Luxury Watches", href: "/category/luxury-watches" },
-    { name: "Classic Watches", href: "/category/classic-watches" },
-    { name: "Smart Watches", href: "/category/smart-watches" },
-    { name: "Chronographs", href: "/category/chronographs" },
+    ...categories.map((c) => ({
+      name: c.name,
+      href: `/category/${c.slug}`
+    })),
     { name: "My Favorites", href: "/wishlist" },
     { name: "Contact Us", href: "/contact" },
   ];

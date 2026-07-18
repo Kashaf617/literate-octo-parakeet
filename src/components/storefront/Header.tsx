@@ -6,6 +6,7 @@ import MobileSidebar from "./MobileSidebar";
 import HeaderWishlistCount from "./HeaderWishlistCount";
 import DesktopNav from "./DesktopNav";
 import HeaderCartCount from "./HeaderCartCount";
+import { prisma } from "@/lib/prisma";
 
 export default async function Header({ 
   storeName, tagline, supportPhone, freeShippingText, marqueeText = "Follow us and get a chance to win 80% off", marqueeSpeed = 20
@@ -13,6 +14,11 @@ export default async function Header({
   storeName: string; tagline: string; supportPhone: string; freeShippingText: string; marqueeText?: string; marqueeSpeed?: number;
 }) {
   const session = await getCustomerSession();
+
+  const categories = await prisma.category.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" }
+  });
 
   return (
     <>
@@ -37,7 +43,7 @@ export default async function Header({
       {/* Main Header */}
       <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-[9999] shadow-sm">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 lg:gap-8 py-5">
-          <MobileSidebar supportPhone={supportPhone} />
+          <MobileSidebar supportPhone={supportPhone} categories={categories as any} />
           
           <Link href="/" className="flex flex-col items-start shrink-0 select-none group">
             <span className="font-heading text-lg sm:text-2xl font-bold tracking-widest text-black group-hover:text-gold transition-colors duration-200">
