@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import ProductCard, { ProductType } from './ProductCard';
 
 interface ProductGridProps {
@@ -12,24 +11,6 @@ interface ProductGridProps {
   settingKey?: string;
   isEditMode?: boolean;
 }
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6 },
-  },
-};
 
 export default function ProductGrid({
   title,
@@ -89,19 +70,13 @@ export default function ProductGrid({
         )}
 
         {/* Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1 gap-y-4 md:gap-8 md:gap-y-12"
-        >
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1 gap-y-4 md:gap-8 md:gap-y-12">
           {products.map((product) => (
-            <motion.div key={product.id} variants={itemVariants}>
+            <div key={product.id}>
               <ProductCard product={product} />
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Elegant 'View All' Button */}
         {viewAllHref && (
