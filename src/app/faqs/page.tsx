@@ -5,7 +5,7 @@ export default function FAQsPage() {
   const faqs = [
     {
       q: "What payment methods do you accept?",
-      a: "We accept Cash on Delivery (COD), EasyPaisa, JazzCash, and direct Bank Transfer. Advance payments get extra discounts!"
+      a: "We accept Cash on Delivery (COD) all over Pakistan. You simply pay cash to the courier when your order is delivered to your doorstep."
     },
     {
       q: "How can I track my order?",
