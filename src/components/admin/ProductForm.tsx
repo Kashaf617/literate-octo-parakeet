@@ -41,7 +41,7 @@ export interface ProductFormValues {
   isFeatured: boolean;
   hasVariants: boolean;
   options: { name: string; values: string[] }[];
-  variants: { sku: string; price: string; stock: string; optionChoices: Record<string, string> }[];
+  variants: { sku: string; price: string; stock: string; optionChoices: Record<string, string>; image?: string | null }[];
   seoTitle: string;
   seoDescription: string;
 
@@ -184,7 +184,7 @@ export default function ProductForm({
     const newVariants = combinations.map(combo => {
       const existing = values.variants.find(v => JSON.stringify(v.optionChoices) === JSON.stringify(combo));
       if (existing) return existing;
-      return { sku: "", price: values.price || "0", stock: values.stock || "0", optionChoices: combo };
+      return { sku: "", price: values.price || "0", stock: values.stock || "0", optionChoices: combo, image: null };
     });
 
     setValues(prev => ({ ...prev, variants: newVariants }));
@@ -618,6 +618,7 @@ export default function ProductForm({
                             <th className="p-3 font-semibold text-sub w-24">Price</th>
                             <th className="p-3 font-semibold text-sub w-20">Stock</th>
                             <th className="p-3 font-semibold text-sub w-28">SKU</th>
+                            <th className="p-3 font-semibold text-sub w-36">Image</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-line">
@@ -646,6 +647,27 @@ export default function ProductForm({
                                   newVars[i].sku = e.target.value;
                                   setValues({ ...values, variants: newVars });
                                 }} />
+                              </td>
+                              <td className="p-2 flex items-center gap-1.5">
+                                {v.image && (
+                                  <div className="relative w-8 h-8 rounded border border-line overflow-hidden shrink-0">
+                                    <img src={v.image} alt="" className="object-cover w-full h-full" />
+                                  </div>
+                                )}
+                                <select 
+                                  className="admin-select p-1 h-8 text-xs bg-white min-w-[70px] flex-1" 
+                                  value={v.image || ""} 
+                                  onChange={(e) => {
+                                    const newVars = [...values.variants];
+                                    newVars[i].image = e.target.value || null;
+                                    setValues({ ...values, variants: newVars });
+                                  }}
+                                >
+                                  <option value="">— None —</option>
+                                  {values.images.filter(Boolean).map((img, idx) => (
+                                    <option key={img} value={img}>Img {idx + 1}</option>
+                                  ))}
+                                </select>
                               </td>
                             </tr>
                           ))}

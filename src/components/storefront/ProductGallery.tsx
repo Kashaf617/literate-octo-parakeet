@@ -32,6 +32,21 @@ export default function ProductGallery({ images, productName }: { images: string
     return () => window.removeEventListener("variant-color-change", handleColorChange);
   }, [mainImages]);
 
+  useEffect(() => {
+    const handleImageChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ image: string }>;
+      const imageStr = customEvent.detail.image;
+      
+      const index = mainImages.indexOf(imageStr);
+      if (index !== -1) {
+        setActiveImageIndex(index);
+      }
+    };
+
+    window.addEventListener("variant-image-change", handleImageChange);
+    return () => window.removeEventListener("variant-image-change", handleImageChange);
+  }, [mainImages]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();

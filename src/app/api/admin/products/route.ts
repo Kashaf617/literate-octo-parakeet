@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
           sku: v.sku || null,
           price: Number(v.price) || 0,
           stock: Number(v.stock) || 0,
+          image: v.image || null,
           optionChoices: JSON.stringify(v.optionChoices || {})
         }))
       }

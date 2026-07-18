@@ -43,6 +43,7 @@ interface Variant {
   comparePrice: number | null;
   stock: number;
   optionChoices: string; // JSON string
+  image?: string | null;
 }
 
 interface Product {
@@ -119,6 +120,11 @@ export default function VariantSelector({ product, general }: { product: Product
       return true;
     });
     setMatchedVariant(matched || null);
+    
+    if (matched && matched.image) {
+      const event = new CustomEvent("variant-image-change", { detail: { image: matched.image } });
+      window.dispatchEvent(event);
+    }
   }, [selected, variants]);
 
   useEffect(() => {
