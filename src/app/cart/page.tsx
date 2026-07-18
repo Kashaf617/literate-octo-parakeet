@@ -23,37 +23,14 @@ export default function CartPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "advance">("cod");
-  const [advanceDiscount, setAdvanceDiscount] = useState(200);
-  const [whatsappNumber, setWhatsappNumber] = useState("+923707765435");
-  const [jazzcashNumber, setJazzcashNumber] = useState("03707765435");
-  const [easypaisaNumber, setEasypaisaNumber] = useState("03707765435");
+  const paymentMethod = "cod";
   const [copied, setCopied] = useState<string | null>(null);
-  const [paySettings, setPaySettings] = useState<any>({
-    jazzcash: { enabled: false, displayNumber: "", displayName: "" },
-    easypaisa: { enabled: false, displayNumber: "", displayName: "" },
-    bankTransfer: { enabled: false, accountTitle: "", accountNumber: "", bankName: "", iban: "", displayInstructions: "" },
-  });
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartLoading, setCartLoading] = useState(true);
 
   useEffect(() => {
-    // Resolve general settings
-    fetch("/api/admin/settings")
-      .then(r => r.json())
-      .then(d => {
-        if (d.advance_payment_discount) setAdvanceDiscount(Number(d.advance_payment_discount));
-        if (d.company_whatsapp) setWhatsappNumber(d.company_whatsapp);
-        if (d.jazzcash_number) setJazzcashNumber(d.jazzcash_number);
-        if (d.easypaisa_number) setEasypaisaNumber(d.easypaisa_number);
-      })
-      .catch(() => {});
-
-    fetch("/api/admin/settings/payments")
-      .then(r => r.json())
-      .then(d => { if (d) setPaySettings(d); })
-      .catch(() => {});
+    // Payment settings not needed for COD only
 
     // Parse URL parameters if any (Buy Now redirection)
     const params = new URLSearchParams(window.location.search);
@@ -107,9 +84,8 @@ export default function CartPage() {
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const shipping = 0;
-  const advanceSaving = paymentMethod === "advance" ? advanceDiscount : 0;
   const couponDiscount = appliedCoupon?.discountAmount || 0;
-  const total = subtotal + shipping - couponDiscount - advanceSaving;
+  const total = subtotal + shipping - couponDiscount;
 
   // Tracking Effect
   useEffect(() => {
@@ -198,13 +174,7 @@ export default function CartPage() {
     }).catch(console.error);
   }
 
-  function openWhatsApp() {
-    const clean = whatsappNumber.replace(/[^0-9]/g, "");
-    const msg = encodeURIComponent(
-      `Hi! I placed order *#${orderNumber}* via Advance Payment. Screenshot attached. Total: *Rs. ${total.toLocaleString()} PKR*. Please confirm!`
-    );
-    window.open(`https://wa.me/${clean}?text=${msg}`, "_blank");
-  }
+
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-[14px] text-black bg-[#f8f9fa] outline-none transition-all focus:border-[#1a1f2e] focus:bg-white focus:shadow-[0_0_0_3px_rgba(26,31,46,0.06)] placeholder:text-black/40";
 
@@ -242,7 +212,6 @@ export default function CartPage() {
 
   // ─── SUCCESS SCREEN ─────────────────────────────────────────────────────────
   if (step === "success") {
-    const isAdvance = paymentMethod === "advance";
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-4">
         <div className="max-w-[480px] w-full">
@@ -259,93 +228,10 @@ export default function CartPage() {
               Order <span className="font-bold text-black">#{orderNumber}</span> placed successfully.
             </p>
             <p className="text-black/60 text-xs mb-8">
-              Rs. {total.toLocaleString()} • {isAdvance ? "Advance Payment" : "Cash on Delivery"}
+              Rs. {total.toLocaleString()} • Cash on Delivery
             </p>
 
-            {isAdvance && (
-              <div className="text-left mb-6 space-y-3">
-                <div className="bg-[#f8f9fa] border border-gray-200 rounded-2xl p-5">
-                  <p className="text-[11px] font-black uppercase tracking-[0.15em] text-black/60 mb-3">📋 Send Payment To</p>
-                  
-                  {paySettings.jazzcash?.displayNumber && (
-                    <div className="flex items-center justify-between py-3 border-b border-black">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg overflow-hidden relative bg-[#f5f5f5]">
-                          <Image src="/uploads/jazzcash.jpg" alt="JazzCash" fill className="object-contain p-1" />
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-black/60 font-medium">JazzCash</p>
-                          <p className="text-sm font-bold text-black">{paySettings.jazzcash.displayNumber}</p>
-                          {paySettings.jazzcash.displayName && <p className="text-xs text-black/70">{paySettings.jazzcash.displayName}</p>}
-                        </div>
-                      </div>
-                      <button onClick={() => copyToClipboard(paySettings.jazzcash.displayNumber, "jc")} className="text-black/60 hover:text-black transition-colors p-2 rounded-lg hover:bg-[#f0f0f0]">
-                        {copied === "jc" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  )}
-
-                  {paySettings.easypaisa?.displayNumber && (
-                    <div className="flex items-center justify-between py-3 border-b border-black">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg overflow-hidden relative bg-[#f5f5f5]">
-                          <Image src="/uploads/easypaisa.png" alt="EasyPaisa" fill className="object-contain p-1" />
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-black/60 font-medium">EasyPaisa</p>
-                          <p className="text-sm font-bold text-black">{paySettings.easypaisa.displayNumber}</p>
-                          {paySettings.easypaisa.displayName && <p className="text-xs text-black/70">{paySettings.easypaisa.displayName}</p>}
-                        </div>
-                      </div>
-                      <button onClick={() => copyToClipboard(paySettings.easypaisa.displayNumber, "ep")} className="text-black/60 hover:text-black transition-colors p-2 rounded-lg hover:bg-[#f0f0f0]">
-                        {copied === "ep" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  )}
-
-                  {paySettings.bankTransfer?.accountNumber && (
-                    <div className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-[#3b2e2a] flex items-center justify-center">
-                          <span className="text-white text-[9px] font-black">BANK</span>
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-black/60 font-medium">{paySettings.bankTransfer.bankName || "Bank Transfer"}</p>
-                          <p className="text-sm font-bold text-black">{paySettings.bankTransfer.accountNumber}</p>
-                          {paySettings.bankTransfer.accountTitle && <p className="text-xs text-black/70">{paySettings.bankTransfer.accountTitle}</p>}
-                          {paySettings.bankTransfer.iban && <p className="text-[11px] text-black/60">IBAN: {paySettings.bankTransfer.iban}</p>}
-                        </div>
-                      </div>
-                      <button onClick={() => copyToClipboard(paySettings.bankTransfer.accountNumber, "bank")} className="text-black/60 hover:text-black transition-colors p-2 rounded-lg hover:bg-[#f0f0f0]">
-                        {copied === "bank" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  )}
-
-                  {!paySettings.jazzcash?.displayNumber && !paySettings.easypaisa?.displayNumber && !paySettings.bankTransfer?.accountNumber && (
-                    <p className="text-sm text-black/60 py-2">Transfer details will be sent to your email.</p>
-                  )}
-                </div>
-
-                {paySettings.bankTransfer?.displayInstructions && (
-                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                    <p className="text-xs text-amber-700 leading-relaxed">{paySettings.bankTransfer.displayInstructions}</p>
-                  </div>
-                )}
-
-                <button
-                  onClick={openWhatsApp}
-                  className="w-full flex items-center justify-center gap-2.5 bg-[#25d366] hover:bg-[#20b858] text-white font-bold text-sm py-3.5 rounded-2xl transition-all duration-200 shadow-[0_4px_16px_rgba(37,211,102,0.25)]"
-                >
-                  <div className="w-6 h-6 relative shrink-0">
-                     <Image src="/uploads/whatsapp.png" alt="WhatsApp" fill className="object-contain filter brightness-0 invert" />
-                  </div>
-                  Send Screenshot via WhatsApp
-                </button>
-              </div>
-            )}
-
-            <div className={`flex gap-3 ${isAdvance ? "" : "mt-2"}`}>
+            <div className="flex gap-3 mt-2">
               <Link
                 href="/"
                 className="flex-1 flex items-center justify-center py-3.5 rounded-2xl border border-gray-200 text-black/70 hover:border-[#1a1f2e] hover:text-black font-semibold text-sm transition-all"
@@ -546,11 +432,10 @@ export default function CartPage() {
 
                   <div className="p-6 space-y-3">
                     <div
-                      onClick={() => setPaymentMethod("cod")}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "cod" ? "border-[#1a1f2e] bg-[#3b2e2a]/[0.02]" : "border-gray-200 hover:border-gray-300"}`}
+                      className="flex items-center gap-4 p-4 rounded-xl border-2 border-[#1a1f2e] bg-[#3b2e2a]/[0.02]"
                     >
-                      <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === "cod" ? "border-[#1a1f2e]" : "border-[#d1d5db]"}`} style={{ width: 18, height: 18 }}>
-                        {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-[#3b2e2a]" />}
+                      <div className="w-4.5 h-4.5 rounded-full border-2 border-[#1a1f2e] flex items-center justify-center shrink-0" style={{ width: 18, height: 18 }}>
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#3b2e2a]" />
                       </div>
                       <Banknote className="w-5 h-5 text-black/70 shrink-0" />
                       <div>
@@ -558,121 +443,15 @@ export default function CartPage() {
                         <p className="text-xs text-black/60">Pay when your order arrives</p>
                       </div>
                     </div>
-
-                    <div
-                      onClick={() => setPaymentMethod("advance")}
-                      className={`border-2 rounded-xl cursor-pointer transition-all ${paymentMethod === "advance" ? "border-[#f59e0b]" : "border-gray-200 hover:border-gray-300"}`}
-                    >
-                      <div className="flex items-start gap-4 p-4">
-                        <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${paymentMethod === "advance" ? "border-[#f59e0b]" : "border-[#d1d5db]"}`} style={{ width: 18, height: 18 }}>
-                          {paymentMethod === "advance" && <div className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <p className="font-bold text-sm text-black">Advance Payment</p>
-                            <span className="bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
-                              Save Rs. {advanceDiscount}
-                            </span>
-                          </div>
-                          <p className="text-xs text-black/60 mb-3">Pay via JazzCash, EasyPaisa, or Bank Transfer</p>
-
-                          <div className="flex flex-wrap gap-2">
-                            {paySettings.jazzcash?.enabled !== false && (
-                              <div className="flex items-center gap-2 bg-[#f8f9fa] border border-gray-200 rounded-lg px-2.5 py-1.5">
-                                <div className="w-6 h-6 rounded overflow-hidden relative">
-                                  <Image src="/uploads/jazzcash.jpg" alt="JazzCash" fill className="object-contain" />
-                                </div>
-                                <span className="text-[11px] font-bold text-black">JazzCash</span>
-                              </div>
-                            )}
-                            {paySettings.easypaisa?.enabled !== false && (
-                              <div className="flex items-center gap-2 bg-[#f8f9fa] border border-gray-200 rounded-lg px-2.5 py-1.5">
-                                <div className="w-6 h-6 rounded overflow-hidden relative">
-                                  <Image src="/uploads/easypaisa.png" alt="EasyPaisa" fill className="object-contain" />
-                                </div>
-                                <span className="text-[11px] font-bold text-black">EasyPaisa</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2 bg-[#f8f9fa] border border-gray-200 rounded-lg px-2.5 py-1.5">
-                              <div className="w-6 h-6 rounded bg-[#3b2e2a] flex items-center justify-center">
-                                <span className="text-white text-[8px] font-black">BK</span>
-                              </div>
-                              <span className="text-[11px] font-bold text-black">Bank</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {paymentMethod === "advance" && (
-                        <div className="mx-4 mb-4 border border-gray-200 rounded-xl overflow-hidden bg-[#f8f9fa] p-4">
-                          <p className="text-[13px] font-bold text-black mb-2">
-                            Total Amount to Pay: <span className="text-amber-600 font-black">Rs. {total.toLocaleString()}</span>
-                          </p>
-                          <p className="text-[11px] text-black/70 mb-4">Please send the payment to any of the following accounts:</p>
-                          
-                          <div className="flex flex-col gap-3 mb-4">
-                            {paySettings.jazzcash?.displayNumber && (
-                              <div className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 bg-white relative shrink-0">
-                                    <Image src="/uploads/jazzcash_new.jpg" alt="JazzCash" fill className="object-cover" />
-                                  </div>
-                                  <div className="flex flex-col">
-                                     <span className="text-[10px] uppercase text-black/60 font-black tracking-widest">JazzCash</span>
-                                     <span className="text-sm font-black text-black tracking-wider">{jazzcashNumber}</span>
-                                  </div>
-                                </div>
-                                <button type="button" onClick={() => copyToClipboard(jazzcashNumber, "jc")} className="text-black/60 hover:text-black p-2 rounded-lg hover:bg-[#f8f9fa] transition-colors flex items-center justify-center shrink-0">
-                                  {copied === "jc" ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
-                                </button>
-                              </div>
-                            )}
-
-                            {paySettings.easypaisa?.displayNumber && (
-                              <div className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 bg-white relative shrink-0 p-1">
-                                    <Image src="/uploads/easypaisa_new.png" alt="EasyPaisa" fill className="object-contain" />
-                                  </div>
-                                  <div className="flex flex-col">
-                                     <span className="text-[10px] uppercase text-black/60 font-black tracking-widest">EasyPaisa</span>
-                                     <span className="text-sm font-black text-black tracking-wider">{easypaisaNumber}</span>
-                                  </div>
-                                </div>
-                                <button type="button" onClick={() => copyToClipboard(easypaisaNumber, "ep")} className="text-black/60 hover:text-black p-2 rounded-lg hover:bg-[#f8f9fa] transition-colors flex items-center justify-center shrink-0">
-                                  {copied === "ep" ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-emerald-100 transition-colors shadow-sm" onClick={openWhatsApp}>
-                            <div className="w-8 h-8 relative shrink-0">
-                               <Image src="/uploads/whatsapp.png" alt="WhatsApp" fill className="object-contain" />
-                            </div>
-                            <div className="flex-1">
-                               <p className="text-[11px] font-bold text-emerald-800">Send screenshot on WhatsApp to confirm order</p>
-                               <p className="text-[10px] text-emerald-600 mt-0.5 leading-tight">Click here to send your payment screenshot directly to our WhatsApp number.</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
                   </div>
 
                   <div className="px-6 pb-6">
                     <button
                       type="submit" disabled={loading}
-                      className={`w-full font-black text-[15px] uppercase tracking-widest py-4 rounded-2xl border border-gray-200 shadow-sm hover:shadow-none hover:translate-y-1 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm ${
-                        paymentMethod === "advance"
-                          ? "bg-[#ff5a1f] hover:bg-[#e04f1a] text-white"
-                          : "bg-[#3b2e2a] hover:bg-[#2d221e] text-white"
-                      }`}
+                      className="w-full font-black text-[15px] uppercase tracking-widest py-4 rounded-2xl border border-gray-200 shadow-sm hover:shadow-none hover:translate-y-1 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm bg-[#3b2e2a] hover:bg-[#2d221e] text-white"
                     >
                       {loading ? <><Clock className="w-4 h-4 animate-spin" /> Processing...</> 
-                        : paymentMethod === "advance"
-                          ? <>Place Order & Save Rs. {advanceDiscount} <ArrowRight className="w-4 h-4" /></>
-                          : <>Place Order (Cash on Delivery) <ArrowRight className="w-4 h-4" /></>
+                        : <>Place Order (Cash on Delivery) <ArrowRight className="w-4 h-4" /></>
                       }
                     </button>
                   </div>
@@ -744,25 +523,12 @@ export default function CartPage() {
                       <span>- Rs. {appliedCoupon.discountAmount.toLocaleString()}</span>
                     </div>
                   )}
-                  {paymentMethod === "advance" && (
-                    <div className="flex justify-between text-sm font-bold text-amber-600">
-                      <span>Advance Discount</span>
-                      <span>- Rs. {advanceDiscount}</span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
                   <span className="text-[12px] font-black uppercase tracking-widest text-black">Total</span>
                   <span className="text-2xl font-black text-black">Rs. {total.toLocaleString()}</span>
                 </div>
-
-                {paymentMethod === "advance" && (
-                  <div className="mt-3 flex items-center gap-2 bg-amber-50 border border-amber-100 p-3 rounded-xl">
-                    <span className="text-base">💰</span>
-                    <p className="text-xs text-amber-700">Saving <strong>Rs. {advanceDiscount}</strong> with Advance Payment</p>
-                  </div>
-                )}
               </div>
             </div>
           </div>
