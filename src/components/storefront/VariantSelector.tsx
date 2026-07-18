@@ -7,6 +7,35 @@ import { useRouter } from "next/navigation";
 import { trackViewContent, trackAddToCart } from "@/lib/tracking";
 import { addToCart } from "@/lib/cart";
 
+const COMMON_COLORS: Record<string, string> = {
+  black: "#000000",
+  white: "#ffffff",
+  red: "#ef4444",
+  blue: "#3b82f6",
+  green: "#22c55e",
+  yellow: "#eab308",
+  purple: "#a855f7",
+  pink: "#ec4899",
+  orange: "#f97316",
+  gray: "#6b7280",
+  grey: "#6b7280",
+  brown: "#78350f",
+  gold: "#d4af37",
+  silver: "#c0c0c0",
+  bronze: "#cd7f32",
+  beige: "#f5f5dc",
+  navy: "#1e3a8a",
+  teal: "#0f766e",
+  maroon: "#800000",
+  burgundy: "#800020",
+  lavender: "#e6e6fa",
+  cream: "#fffdd0",
+  peach: "#ffdab9",
+  rose: "#fda4af",
+  khaki: "#f0e68c",
+  charcoal: "#36454f"
+};
+
 interface Variant {
   id: string;
   sku: string | null;
@@ -91,6 +120,22 @@ export default function VariantSelector({ product, general }: { product: Product
     });
     setMatchedVariant(matched || null);
   }, [selected, variants]);
+
+  useEffect(() => {
+    const colorOptNames = ["Color", "Shade", "option"];
+    let selectedColorVal = "";
+    for (const name of colorOptNames) {
+      const matchKey = Object.keys(selected).find(k => k.toLowerCase() === name.toLowerCase());
+      if (matchKey && selected[matchKey]) {
+        selectedColorVal = selected[matchKey];
+        break;
+      }
+    }
+    if (selectedColorVal) {
+      const event = new CustomEvent("variant-color-change", { detail: { color: selectedColorVal } });
+      window.dispatchEvent(event);
+    }
+  }, [selected]);
 
   const currentPrice = matchedVariant ? matchedVariant.price : product.price;
   const currentStock = matchedVariant ? matchedVariant.stock : product.stock;
@@ -273,29 +318,58 @@ export default function VariantSelector({ product, general }: { product: Product
         /* Fallback for other products with variants */
         options.length > 0 && (
           <div className="space-y-8 mb-10 border border-black rounded-2xl bg-white/40 p-6">
-            {options.map(opt => (
-              <div key={opt.name}>
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#a1a1aa]">{opt.name}</h4>
-                  <span className="text-[11px] font-medium text-black">{selected[opt.name]}</span>
+            {options.map(opt => {
+              const isColorOption = opt.name.toLowerCase() === "color" || opt.name.toLowerCase() === "shade";
+              return (
+                <div key={opt.name}>
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#a1a1aa]">{opt.name}</h4>
+                    <span className="text-[11px] font-medium text-black">{selected[opt.name]}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-3 items-center">
+                    {opt.values.map(val => {
+                      const colorHex = isColorOption 
+                        ? (COMMON_COLORS[val.toLowerCase().trim()] || COMMON_COLORS[val.toLowerCase().trim().replace(/\s+/g, "")] || null) 
+                        : null;
+                      
+                      if (colorHex) {
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setSelected(prev => ({ ...prev, [opt.name]: val }))}
+                            title={val}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              selected[opt.name] === val 
+                                ? 'ring-2 ring-black ring-offset-2 scale-110' 
+                                : 'hover:scale-105 border border-black/10'
+                            }`}
+                            style={{ backgroundColor: colorHex }}
+                          >
+                            <span className="sr-only">{val}</span>
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setSelected(prev => ({ ...prev, [opt.name]: val }))}
+                          className={`px-6 py-3 border text-[11px] font-semibold uppercase tracking-[0.1em] transition-all duration-300 ${
+                            selected[opt.name] === val 
+                              ? 'border-black bg-black text-white' 
+                              : 'border-[#e4e4e7] text-[#52525b] hover:border-black hover:text-black bg-white'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  {opt.values.map(val => (
-                    <button
-                      key={val}
-                      onClick={() => setSelected(prev => ({ ...prev, [opt.name]: val }))}
-                      className={`px-6 py-3 border text-[11px] font-semibold uppercase tracking-[0.1em] transition-all duration-300 ${
-                        selected[opt.name] === val 
-                          ? 'border-black bg-black text-white' 
-                          : 'border-[#e4e4e7] text-[#52525b] hover:border-black hover:text-black bg-white'
-                      }`}
-                    >
-                      {val}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )
       )}
