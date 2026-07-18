@@ -1,5 +1,6 @@
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import StorefrontLayout from "@/components/ui/StorefrontLayout";
+import ContactForm from "@/components/storefront/ContactForm";
 
 export default function ContactPage() {
   return (
@@ -64,36 +65,7 @@ export default function ContactPage() {
 
           {/* Contact Form */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-12 border border-[#DFD1A5]/40 h-full">
-              <h2 className="text-2xl font-bold text-[#0f172a] mb-8 font-heading">Send us a Message</h2>
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-[#0f172a] font-sans">First Name</label>
-                    <input type="text" placeholder="John" className="w-full bg-[#f8fafc] border border-line rounded-lg px-4 py-3 outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/20 transition-all text-[#0f172a] font-sans" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-[#0f172a] font-sans">Last Name</label>
-                    <input type="text" placeholder="Doe" className="w-full bg-[#f8fafc] border border-line rounded-lg px-4 py-3 outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/20 transition-all text-[#0f172a] font-sans" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-[#0f172a] font-sans">Email Address</label>
-                  <input type="email" placeholder="john@example.com" className="w-full bg-[#f8fafc] border border-line rounded-lg px-4 py-3 outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/20 transition-all text-[#0f172a] font-sans" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-[#0f172a] font-sans">Message</label>
-                  <textarea placeholder="How can we help you?" rows={6} className="w-full bg-[#f8fafc] border border-line rounded-lg px-4 py-3 outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/20 transition-all text-[#0f172a] resize-none font-sans"></textarea>
-                </div>
-
-                <button type="button" className="w-full bg-black hover:bg-[#C9A227] text-white hover:text-black border border-black hover:border-[#C9A227] px-8 py-4 rounded-lg font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 group font-sans">
-                  Send Message
-                  <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </form>
-            </div>
+            <ContactForm />
           </div>
 
         </div>

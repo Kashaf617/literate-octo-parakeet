@@ -249,3 +249,12 @@ model Upload {
   data      String   // Base64 encoded string
   createdAt DateTime @default(now())
 }
+
+model ContactMessage {
+  id        String   @id @map("_id") @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
