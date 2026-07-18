@@ -21,7 +21,7 @@ export default function FAQsPage() {
     },
     {
       q: "What is your return policy?",
-      a: "We offer a 30-day return window for unused items in their original packaging. Please visit our Return Policy page or contact us at devineora7@gmail.com for detailed instructions."
+      a: "We offer a 3-day return window for unused items in their original packaging. Please visit our Return Policy page or contact us at devineora7@gmail.com for detailed instructions."
     }
   ];
 
