@@ -21,6 +21,15 @@ export async function POST(req: NextRequest) {
       data: { name, email, passwordHash }
     });
 
+    // Link any past guest orders with this email to the new customer account
+    await prisma.order.updateMany({
+      where: { 
+        email: { equals: email.trim(), mode: 'insensitive' }, 
+        customerId: null 
+      },
+      data: { customerId: customer.id }
+    });
+
     const token = await createCustomerSessionToken({
       sub: customer.id,
       email: customer.email,

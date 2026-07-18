@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import Header from "@/components/storefront/Header";
 import Footer from "@/components/storefront/Footer";
 import { getSetting, DEFAULT_SETTINGS } from "@/lib/settings";
-import { LogOut, Package, MapPin, User, ChevronRight } from "lucide-react";
+import { Package, MapPin, User } from "lucide-react";
 import LogoutButton from "./LogoutButton";
+import OrderList from "./OrderList";
 
 export const revalidate = 0;
 
@@ -17,17 +18,28 @@ export default async function AccountPage() {
   }
 
   const customer = await prisma.customer.findUnique({
-    where: { id: session.sub },
-    include: {
-      orders: {
-        orderBy: { createdAt: 'desc' }
-      }
-    }
+    where: { id: session.sub }
   });
 
   if (!customer) {
     redirect("/login");
   }
+
+  // Fetch all orders matching customerId OR customer email, including order items
+  const orders = await prisma.order.findMany({
+    where: {
+      OR: [
+        { customerId: customer.id },
+        { email: { equals: customer.email.trim(), mode: 'insensitive' } }
+      ]
+    },
+    include: {
+      items: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
 
   const general = await getSetting("general", DEFAULT_SETTINGS.general);
 
@@ -73,7 +85,7 @@ export default async function AccountPage() {
             <div className="flex-1">
               <h1 className="text-2xl font-extrabold text-ink mb-6">Order History</h1>
               
-              {customer.orders.length === 0 ? (
+              {orders.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-sm border border-line p-12 text-center">
                   <Package className="w-16 h-16 text-gray-200 mx-auto mb-4" />
                   <h3 className="text-lg font-bold text-ink mb-2">No orders yet</h3>
@@ -83,43 +95,7 @@ export default async function AccountPage() {
                   </a>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {customer.orders.map((order) => (
-                    <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-line p-6 hover:shadow-md transition">
-                      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-line">
-                        <div>
-                          <div className="text-[12px] font-bold text-sub uppercase tracking-wider mb-1">Order Number</div>
-                          <div className="text-[15px] font-extrabold text-ink">#{order.orderNumber}</div>
-                        </div>
-                        <div>
-                          <div className="text-[12px] font-bold text-sub uppercase tracking-wider mb-1">Date</div>
-                          <div className="text-[14px] font-medium text-ink">{order.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</div>
-                        </div>
-                        <div>
-                          <div className="text-[12px] font-bold text-sub uppercase tracking-wider mb-1">Total</div>
-                          <div className="text-[15px] font-extrabold text-brand">PKR {order.total.toLocaleString()}</div>
-                        </div>
-                        <div>
-                          <span className={`inline-flex px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider ${
-                            order.orderStatus === "delivered" ? "bg-green-100 text-green-700" :
-                            order.orderStatus === "cancelled" ? "bg-red-100 text-red-700" :
-                            "bg-blue-50 text-brand"
-                          }`}>
-                            {order.orderStatus}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="text-[13px] text-sub">
-                          {order.paymentMethod.toUpperCase()} • {order.paymentStatus}
-                        </div>
-                        <button className="text-brand font-bold text-[13px] flex items-center gap-1 hover:underline">
-                          View Details <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <OrderList orders={orders} />
               )}
             </div>
           </div>

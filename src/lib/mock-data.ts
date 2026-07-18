@@ -43,7 +43,7 @@ export const FOOTER_LINKS = {
     { label: "Limited Edition", href: "/category/limited-edition" }
   ],
   useful: [
-    { label: "Track Order", href: "#" },
+    { label: "Track Order", href: "/track-order" },
     { label: "Shipping & Delivery", href: "#" },
     { label: "Returns & Refunds", href: "#" },
     { label: "Privacy Policy", href: "#" },
