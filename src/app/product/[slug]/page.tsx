@@ -220,7 +220,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             <ProductAccordion title="Shipping & Returns">
               <p className="text-[13px] font-light leading-relaxed text-[#52525b]">
-                Complimentary standard shipping on all orders above PKR 2,500. Next-day delivery available in select cities. Enjoy a hassle-free 30-day return policy for unopened items.
+                Complimentary standard shipping on all orders above PKR 2,500. Next-day delivery available in select cities. Enjoy a hassle-free 3-day return policy for unopened items.
               </p>
             </ProductAccordion>
           </div>
