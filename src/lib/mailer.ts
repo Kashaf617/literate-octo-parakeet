@@ -1,6 +1,16 @@
 import { prisma } from "./prisma";
 
-export async function sendEmail({ to, subject, htmlContent }: { to: string; subject: string; htmlContent: string }) {
+export async function sendEmail({ 
+  to, 
+  subject, 
+  htmlContent, 
+  replyTo 
+}: { 
+  to: string; 
+  subject: string; 
+  htmlContent: string; 
+  replyTo?: { name: string; email: string } 
+}) {
   try {
     // 1. Fetch settings from DB
     const settingsRows = await prisma.setting.findMany({
@@ -31,6 +41,7 @@ export async function sendEmail({ to, subject, htmlContent }: { to: string; subj
         body: JSON.stringify({
           sender: { name: fromName, email: fromEmail },
           to: [{ email: to }],
+          replyTo: replyTo ? { name: replyTo.name, email: replyTo.email } : undefined,
           subject,
           htmlContent,
         }),
@@ -49,6 +60,9 @@ export async function sendEmail({ to, subject, htmlContent }: { to: string; subj
       formData.append("to", to);
       formData.append("subject", subject);
       formData.append("html", htmlContent);
+      if (replyTo) {
+        formData.append("h:Reply-To", `${replyTo.name} <${replyTo.email}>`);
+      }
 
       const response = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
         method: "POST",
