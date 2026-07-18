@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import nodemailer from "nodemailer";
 
 export async function sendEmail({ 
   to, 
@@ -27,7 +28,51 @@ export async function sendEmail({
     const fromEmail = settings.email_from_address || "devineora7@gmail.com";
 
     // 2. Route based on provider
-    if (provider === "brevo") {
+    if (provider === "gmail") {
+      const gmailUser = settings.email_gmail_user;
+      const gmailPass = settings.email_gmail_pass;
+      if (!gmailUser || !gmailPass) return console.error("Gmail SMTP config missing");
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"${fromName}" <${gmailUser}>`,
+        to,
+        subject,
+        html: htmlContent,
+        replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
+      });
+    }
+    else if (provider === "smtp") {
+      const host = settings.email_smtp_host;
+      const port = parseInt(settings.email_smtp_port || "587");
+      const user = settings.email_smtp_user;
+      const pass = settings.email_smtp_pass;
+      
+      if (!host || !user || !pass) return console.error("Custom SMTP config missing");
+
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass },
+      });
+
+      await transporter.sendMail({
+        from: `"${fromName}" <${fromEmail}>`,
+        to,
+        subject,
+        html: htmlContent,
+        replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
+      });
+    }
+    else if (provider === "brevo") {
       const apiKey = settings.email_brevo_api_key;
       if (!apiKey) return console.error("Brevo API key missing");
 
