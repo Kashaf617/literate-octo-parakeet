@@ -25,11 +25,23 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     await prisma.productCollection.deleteMany({ where: { productId: params.id } });
     await prisma.productVariant.deleteMany({ where: { productId: params.id } });
 
+    let slug = data.slug ? slugify(data.slug) : undefined;
+    if (slug) {
+      let originalSlug = slug;
+      let counter = 1;
+      while (true) {
+        const existing = await prisma.product.findUnique({ where: { slug } });
+        if (!existing || existing.id === params.id) break;
+        slug = `${originalSlug}-${counter}`;
+        counter++;
+      }
+    }
+
     const product = await prisma.product.update({
       where: { id: params.id },
       data: {
         name: data.name,
-        slug: data.slug ? slugify(data.slug) : undefined,
+        slug: slug || undefined,
         description: data.description || "",
         price: Number(data.price) || 0,
         comparePrice: data.comparePrice ? Number(data.comparePrice) : null,

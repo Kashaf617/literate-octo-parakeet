@@ -21,7 +21,15 @@ export async function POST(req: NextRequest) {
   try {
     if (!(await requireAdmin(req))) return unauthorized();
     const data = await req.json();
-    const slug = data.slug ? slugify(data.slug) : slugify(data.name);
+    let slug = data.slug ? slugify(data.slug) : slugify(data.name);
+    let originalSlug = slug;
+    let counter = 1;
+    while (true) {
+      const existing = await prisma.product.findUnique({ where: { slug } });
+      if (!existing) break;
+      slug = `${originalSlug}-${counter}`;
+      counter++;
+    }
 
     const product = await prisma.product.create({
       data: {
