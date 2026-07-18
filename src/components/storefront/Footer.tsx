@@ -10,7 +10,7 @@ const WhatsAppIcon = () => (
 
 export default async function Footer({ storeName }: { storeName: string }) {
   const settings = await getSetting("general", DEFAULT_SETTINGS.general) as any;
-  const whatsappNumber = settings.company_whatsapp || "+923001234567";
+  const whatsappNumber = settings.company_whatsapp || "+923707765435";
   const cleanNumber = whatsappNumber.replace(/[^0-9]/g, "");
   return (
     <footer className="bg-[#1a1514] text-[#f8f9fa] pt-24 pb-12 relative overflow-hidden" id="footer">

@@ -25,9 +25,9 @@ export default function CartPage() {
   const [couponError, setCouponError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "advance">("cod");
   const [advanceDiscount, setAdvanceDiscount] = useState(200);
-  const [whatsappNumber, setWhatsappNumber] = useState("+923001234567");
-  const [jazzcashNumber, setJazzcashNumber] = useState("03001234567");
-  const [easypaisaNumber, setEasypaisaNumber] = useState("03001234567");
+  const [whatsappNumber, setWhatsappNumber] = useState("+923707765435");
+  const [jazzcashNumber, setJazzcashNumber] = useState("03707765435");
+  const [easypaisaNumber, setEasypaisaNumber] = useState("03707765435");
   const [copied, setCopied] = useState<string | null>(null);
   const [paySettings, setPaySettings] = useState<any>({
     jazzcash: { enabled: false, displayNumber: "", displayName: "" },

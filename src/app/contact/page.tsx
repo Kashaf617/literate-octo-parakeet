@@ -42,7 +42,7 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-lg font-bold text-[#0f172a] mb-2 font-sans">Phone Number</h3>
                 <p className="text-[#475569] leading-relaxed mb-1 font-sans font-light">
-                  <a href="tel:+923001234567" className="hover:text-[#C9A227] transition-colors">+92 300 1234567</a>
+                  <a href="tel:+923707765435" className="hover:text-[#C9A227] transition-colors">+92 370 7765435</a>
                 </p>
                 <p className="text-sm text-[#94a3b8] font-sans">Mon-Sat 9am to 6pm</p>
               </div>

@@ -9,9 +9,9 @@ export default function StorefrontSettingsForm({ initialSettings }: { initialSet
     marquee_text: initialSettings.marquee_text || "FOLLOW US AND GET A CHANCE TO WIN 80% OFF",
     marquee_speed: initialSettings.marquee_speed || "20",
     advance_payment_discount: initialSettings.advance_payment_discount || "200",
-    jazzcash_number: initialSettings.jazzcash_number || "03001234567",
-    easypaisa_number: initialSettings.easypaisa_number || "03001234567",
-    company_whatsapp: initialSettings.company_whatsapp || "+923001234567",
+    jazzcash_number: initialSettings.jazzcash_number || "03707765435",
+    easypaisa_number: initialSettings.easypaisa_number || "03707765435",
+    company_whatsapp: initialSettings.company_whatsapp || "+923707765435",
   });
   const [saving, setSaving] = useState(false);
 
@@ -108,7 +108,7 @@ export default function StorefrontSettingsForm({ initialSettings }: { initialSet
               <input 
                 className="admin-input" 
                 value={settings.company_whatsapp} 
-                placeholder="+923001234567"
+                placeholder="+923707765435"
                 onChange={e => setSettings({ ...settings, company_whatsapp: e.target.value })} 
               />
               <p className="text-xs text-sub mt-1">Customers will be directed to this number to send their payment screenshot after placing an advance order.</p>
