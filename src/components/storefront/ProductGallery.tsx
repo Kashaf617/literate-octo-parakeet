@@ -11,42 +11,6 @@ export default function ProductGallery({ images, productName }: { images: string
 
   const mainImages = images.length > 0 ? images : ["https://placehold.co/800x1000"];
 
-  useEffect(() => {
-    const handleColorChange = (e: Event) => {
-      const customEvent = e as CustomEvent<{ color: string }>;
-      const colorName = customEvent.detail.color.toLowerCase();
-      
-      const index = mainImages.findIndex(imgUrl => {
-        const cleanUrl = imgUrl.toLowerCase();
-        return cleanUrl.includes(colorName) || 
-               cleanUrl.includes(colorName.replace(/\s+/g, "-")) || 
-               cleanUrl.includes(colorName.replace(/\s+/g, "_"));
-      });
-      
-      if (index !== -1) {
-        setActiveImageIndex(index);
-      }
-    };
-
-    window.addEventListener("variant-color-change", handleColorChange);
-    return () => window.removeEventListener("variant-color-change", handleColorChange);
-  }, [mainImages]);
-
-  useEffect(() => {
-    const handleImageChange = (e: Event) => {
-      const customEvent = e as CustomEvent<{ image: string }>;
-      const imageStr = customEvent.detail.image;
-      
-      const index = mainImages.indexOf(imageStr);
-      if (index !== -1) {
-        setActiveImageIndex(index);
-      }
-    };
-
-    window.addEventListener("variant-image-change", handleImageChange);
-    return () => window.removeEventListener("variant-image-change", handleImageChange);
-  }, [mainImages]);
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
