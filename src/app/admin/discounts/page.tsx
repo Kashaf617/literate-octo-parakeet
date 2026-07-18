@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import PageHeader from "@/components/admin/PageHeader";
 import { Ticket } from "lucide-react";
 import CreateCouponForm from "./CreateCouponForm";
+import DeleteCouponButton from "./DeleteCouponButton";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,7 @@ export default async function DiscountsPage() {
                       <th className="px-6 py-3 font-bold">Discount</th>
                       <th className="px-6 py-3 font-bold">Usage</th>
                       <th className="px-6 py-3 font-bold">Status</th>
+                      <th className="px-6 py-3 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
@@ -62,6 +64,9 @@ export default async function DiscountsPage() {
                           }`}>
                             {c.isActive ? 'ACTIVE' : 'INACTIVE'}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <DeleteCouponButton id={c.id} />
                         </td>
                       </tr>
                     ))}

@@ -6,7 +6,7 @@ export default function ReturnPolicyPage() {
       <section>
         <h2 className="text-2xl font-bold text-[#0f172a] mb-4">1. Return Window</h2>
         <p>
-          We want you to be completely satisfied with your purchase. If for any reason you are not entirely pleased with a product you purchased, you may return it within <strong>30 days</strong> of the original delivery date for a full return. 
+          We want you to be completely satisfied with your purchase. If for any reason you are not entirely pleased with a product you purchased, you may return it within <strong>3 days</strong> of the original delivery date for a full return. Returns requested after 3 days of delivery will not be accepted.
         </p>
       </section>
 

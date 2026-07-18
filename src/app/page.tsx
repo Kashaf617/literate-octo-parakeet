@@ -101,11 +101,11 @@ export default async function HomePage({ searchParams }: { searchParams: { editM
             subtitle: "DEVINE ORA watches are assembled by master watchmakers with hand-polished steel and sapphire glass.",
             eyebrow: "OUR CRAFTSMANSHIP",
             buttonText: "Discover Craftsmanship",
-            image: "https://images.unsplash.com/photo-1619134778706-7015533a6150?auto=format&fit=crop&w=1600&q=80",
+            image: "/api/media/cmrqdsz1x00004h8jqm2xrqyd",
             bgColorFrom: "transparent",
             bgColorTo: "#000000",
             textColor: "#ffffff"
-          } as any} products={allProducts.filter(p => p.collections.some(c => c.collection.slug === "beauty-essentials-sale")) as any} />
+          } as any} products={allProducts.slice(0, 4) as any} />
         )}
         
         {stripBanners.length > 0 ? stripBanners.map((banner, i) => {
@@ -118,7 +118,7 @@ export default async function HomePage({ searchParams }: { searchParams: { editM
             subtitle: "Discover the rare, high-end watches from our limited release collection.",
             eyebrow: "LIMITED QUANTITIES",
             buttonText: "View Collection",
-            image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1600&q=80",
+            image: "/api/media/cmrqdf5jl0000xyxqspu3hnil",
             bgColorFrom: "#000000",
             textColor: "#ffffff",
             link: "/search"
