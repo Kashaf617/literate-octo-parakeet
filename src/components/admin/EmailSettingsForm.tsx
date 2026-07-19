@@ -1,4 +1,5 @@
 "use client";
+// v2 - supports: brevo, mailgun, gmail, smtp
 import { useState } from "react";
 
 export default function EmailSettingsForm({ initialSettings }: { initialSettings: Record<string, string> }) {
