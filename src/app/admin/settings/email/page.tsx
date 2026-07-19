@@ -16,7 +16,7 @@ export default async function EmailSettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Email Settings" subtitle="Configure transactional email providers (Brevo or Mailgun)." />
+      <PageHeader title="Email Settings" subtitle="Configure transactional email providers (Brevo, Mailgun, Gmail SMTP, or Custom SMTP)." />
       <EmailSettingsForm initialSettings={dict} />
     </div>
   );
