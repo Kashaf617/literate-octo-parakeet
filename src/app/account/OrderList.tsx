@@ -5,12 +5,38 @@ import Image from "next/image";
 
 export default function OrderList({ orders }: { orders: any[] }) {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   function toggleExpand(orderId: string) {
     if (expandedOrderId === orderId) {
       setExpandedOrderId(null);
     } else {
       setExpandedOrderId(orderId);
+    }
+  }
+
+  async function handleCancelOrder(orderId: string, orderNumber: string) {
+    if (cancellingId) return;
+    const confirmCancel = window.confirm(`Are you sure you want to cancel order #${orderNumber}?`);
+    if (!confirmCancel) return;
+
+    setCancellingId(orderId);
+    try {
+      const res = await fetch(`/api/customer/orders/${orderId}/cancel`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.alert(`Order #${orderNumber} has been successfully cancelled.`);
+        window.location.reload();
+      } else {
+        window.alert(data.error || "Failed to cancel order.");
+      }
+    } catch (err) {
+      console.error(err);
+      window.alert("An error occurred while cancelling your order.");
+    } finally {
+      setCancellingId(null);
     }
   }
 
@@ -147,8 +173,21 @@ export default function OrderList({ orders }: { orders: any[] }) {
                       </div>
                     </div>
                   </div>
-
                 </div>
+
+                {/* Cancel Order Action */}
+                {(order.orderStatus.toLowerCase() === "processing" || order.orderStatus.toLowerCase() === "pending") && (
+                  <div className="pt-4 border-t border-line flex justify-end">
+                    <button
+                      type="button"
+                      disabled={cancellingId === order.id}
+                      onClick={() => handleCancelOrder(order.id, order.orderNumber)}
+                      className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition duration-200 shadow-sm disabled:opacity-50"
+                    >
+                      {cancellingId === order.id ? "Cancelling..." : "Cancel Order"}
+                    </button>
+                  </div>
+                )}
 
               </div>
             )}
