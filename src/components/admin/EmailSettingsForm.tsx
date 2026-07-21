@@ -41,6 +41,27 @@ export default function EmailSettingsForm({ initialSettings }: { initialSettings
     { value: "smtp", label: "Custom SMTP", desc: "Use any custom mail server" },
   ];
 
+  const [seeding, setSeeding] = useState(false);
+  const [seedResult, setSeedResult] = useState<string | null>(null);
+
+  async function runSeeder() {
+    setSeeding(true);
+    setSeedResult(null);
+    try {
+      const res = await fetch("/api/admin/seed-data?secret=devineora-seed-2026");
+      const data = await res.json();
+      setSeeding(false);
+      if (res.ok && data.success) {
+        setSeedResult(`✅ Success! ${data.articlesCreated} blog articles and ${data.reviewsCreated} customer reviews populated.`);
+      } else {
+        setSeedResult(`❌ Failed: ${data.error || "Unknown error"}`);
+      }
+    } catch (err: any) {
+      setSeeding(false);
+      setSeedResult(`❌ Error: ${err.message}`);
+    }
+  }
+
   return (
     <div className="grid lg:grid-cols-[1fr_400px] gap-6">
       <div className="admin-card space-y-8">
@@ -182,18 +203,40 @@ export default function EmailSettingsForm({ initialSettings }: { initialSettings
       </div>
 
       {/* Help sidebar */}
-      <div className="admin-card self-start space-y-4">
-        <h3 className="font-extrabold text-ink mb-2">Provider Guide</h3>
-        <div className="space-y-4 text-[13px] text-[#64748b] leading-relaxed">
-          <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
-            <p className="font-bold text-blue-800 mb-1">📧 Gmail SMTP (Recommended)</p>
-            <p>Best option if you are using a Vercel subdomain. Go to <strong>Google Account → Security → App Passwords</strong>, create a new App Password, and paste it here.</p>
+      <div className="space-y-6">
+        <div className="admin-card space-y-4">
+          <h3 className="font-extrabold text-ink mb-2">Provider Guide</h3>
+          <div className="space-y-4 text-[13px] text-[#64748b] leading-relaxed">
+            <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
+              <p className="font-bold text-blue-800 mb-1">📧 Gmail SMTP (Recommended)</p>
+              <p>Best option if you are using a Vercel subdomain. Go to <strong>Google Account → Security → App Passwords</strong>, create a new App Password, and paste it here.</p>
+            </div>
+            <div className="p-3 rounded-lg bg-green-50 border border-green-100">
+              <p className="font-bold text-green-800 mb-1">🚀 Brevo (Free Tier)</p>
+              <p>Create a free account at <strong>brevo.com</strong>, get your API key from Settings → API Keys, and paste it here.</p>
+            </div>
+            <p>Emails are sent automatically on: new orders, status updates (Shipped/Delivered), and contact form submissions.</p>
           </div>
-          <div className="p-3 rounded-lg bg-green-50 border border-green-100">
-            <p className="font-bold text-green-800 mb-1">🚀 Brevo (Free Tier)</p>
-            <p>Create a free account at <strong>brevo.com</strong>, get your API key from Settings → API Keys, and paste it here.</p>
-          </div>
-          <p>Emails are sent automatically on: new orders, status updates (Shipped/Delivered), and contact form submissions.</p>
+        </div>
+
+        {/* Data Seeder Box */}
+        <div className="admin-card space-y-4 border-2 border-amber-200 bg-amber-50/50">
+          <h3 className="font-extrabold text-ink">✨ Initialize Store Content</h3>
+          <p className="text-[13px] text-[#64748b] leading-relaxed">
+            Populate your store with <strong>4 luxury watch blog articles</strong> and <strong>36 customer reviews</strong> (with latest July 2026 dates) in one click.
+          </p>
+          <button
+            onClick={runSeeder}
+            disabled={seeding}
+            className="w-full bg-[#0b1221] text-white font-bold py-3 px-4 rounded-xl text-[13px] hover:bg-black transition-colors disabled:opacity-50"
+          >
+            {seeding ? "Populating Store Data..." : "⚡ Sync Blog Articles & Reviews"}
+          </button>
+          {seedResult && (
+            <p className={`text-[12px] p-3 rounded-lg font-medium leading-relaxed ${seedResult.startsWith("✅") ? "bg-green-100 text-green-800 border border-green-200" : "bg-red-100 text-red-800 border border-red-200"}`}>
+              {seedResult}
+            </p>
+          )}
         </div>
       </div>
     </div>
