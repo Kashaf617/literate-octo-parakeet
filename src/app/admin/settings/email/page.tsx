@@ -3,6 +3,8 @@ import EmailSettingsForm from "@/components/admin/EmailSettingsForm";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 export default async function EmailSettingsPage() {
   const settings = await prisma.setting.findMany({

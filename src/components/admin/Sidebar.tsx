@@ -46,7 +46,7 @@ const NAV = [
   { href: "/admin/logistics", label: "Logistics", icon: <Truck size={18} /> },
   { href: "/admin/settings", label: "Settings", icon: <Settings size={18} /> },
   { href: "/admin/settings/storefront", label: "Storefront UI", icon: <Store size={18} /> },
-  { href: "/admin/settings/email", label: "Email (Brevo)", icon: <Mail size={18} /> }
+  { href: "/admin/settings/email", label: "Email Settings", icon: <Mail size={18} /> }
 ];
 
 export default function Sidebar({ storeName, userName }: { storeName: string; userName: string }) {
