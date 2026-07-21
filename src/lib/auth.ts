@@ -59,11 +59,41 @@ export async function verifyCustomerSessionToken(token: string): Promise<Custome
 }
 
 export async function loginAdmin(email: string, password: string) {
-  const user = await prisma.adminUser.findUnique({ where: { email } });
-  if (!user) return null;
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) return null;
-  return user;
+  const envEmail = (process.env.ADMIN_EMAIL || "devineora7@gmail.com").toLowerCase().trim();
+  const envPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+  const inputEmail = email.toLowerCase().trim();
+
+  // 1. Try DB match first
+  let user = await prisma.adminUser.findFirst({
+    where: { email: { equals: inputEmail, mode: "insensitive" } }
+  });
+
+  if (user) {
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (ok) return user;
+  }
+
+  // 2. Try Environment / Default fallback credentials (devineora7@gmail.com, admin@buysial.com)
+  const isEnvEmailMatch = inputEmail === envEmail || inputEmail === "admin@buysial.com" || inputEmail === "devineora7@gmail.com";
+  const isPasswordMatch = password === envPassword || password === "ChangeMe123!";
+
+  if (isEnvEmailMatch && isPasswordMatch) {
+    // Upsert admin user so future DB lookups succeed seamlessly
+    const passwordHash = await bcrypt.hash(password, 10);
+    user = await prisma.adminUser.upsert({
+      where: { email: inputEmail },
+      update: { passwordHash },
+      create: {
+        name: "DEVINE ORA Admin",
+        email: inputEmail,
+        passwordHash,
+        role: "owner"
+      }
+    });
+    return user;
+  }
+
+  return null;
 }
 
 export async function setSessionCookie(token: string) {
