@@ -11,9 +11,9 @@ export async function sendEmail({
   subject: string; 
   htmlContent: string; 
   replyTo?: { name: string; email: string } 
-}) {
+}): Promise<{ success: boolean; message?: string; providerUsed?: string }> {
   try {
-    // 1. Fetch settings from DB
+    // 1. Fetch email settings from DB
     const settingsRows = await prisma.setting.findMany({
       where: { key: { startsWith: "email_" } }
     });
@@ -23,114 +23,137 @@ export async function sendEmail({
       return acc;
     }, {} as Record<string, string>);
 
-    const provider = settings.email_provider || "brevo";
+    const activeProvider = settings.email_provider || "gmail";
     const fromName = settings.email_from_name || "DEVINE ORA";
-    const fromEmail = settings.email_from_address || "devineora7@gmail.com";
+    const fromEmail = settings.email_from_address || settings.email_gmail_user || "devineora7@gmail.com";
 
-    // 2. Route based on provider
-    if (provider === "gmail") {
-      const gmailUser = settings.email_gmail_user?.trim();
-      const rawPass = settings.email_gmail_pass || "";
-      // Strip all whitespace characters from Google App Password (e.g. "fasm uowy norw lemx" -> "fasmuowynorwlemx")
-      const gmailPass = rawPass.replace(/\s+/g, "").trim();
+    // Clean Gmail App Password (remove all whitespace spaces)
+    const gmailUser = settings.email_gmail_user?.trim();
+    const gmailPass = (settings.email_gmail_pass || "").replace(/\s+/g, "").trim();
 
-      if (!gmailUser || !gmailPass) {
-        console.error("[Mailer] Gmail SMTP configuration missing (user or app password absent)");
-        return;
+    // Provider order based on selection, with automatic fallback
+    const providerQueue = [activeProvider];
+    if (!providerQueue.includes("gmail") && gmailUser && gmailPass) providerQueue.push("gmail");
+    if (!providerQueue.includes("brevo") && settings.email_brevo_api_key) providerQueue.push("brevo");
+    if (!providerQueue.includes("smtp") && settings.email_smtp_host) providerQueue.push("smtp");
+
+    let lastError = "";
+
+    for (const provider of providerQueue) {
+      // ---------------- GMAIL SMTP ----------------
+      if (provider === "gmail") {
+        if (!gmailUser || !gmailPass) {
+          lastError = "Gmail credentials missing";
+          continue;
+        }
+
+        try {
+          const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+              user: gmailUser,
+              pass: gmailPass,
+            },
+          });
+
+          const info = await transporter.sendMail({
+            from: `"${fromName}" <${gmailUser}>`,
+            to,
+            subject,
+            html: htmlContent,
+            replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
+          });
+
+          console.log(`[Mailer] Successfully sent email to ${to} via Gmail SMTP (${info.messageId})`);
+          return { success: true, providerUsed: "Gmail SMTP", message: `MessageId: ${info.messageId}` };
+        } catch (err: any) {
+          console.error("[Mailer] Gmail SMTP Error:", err.message);
+          lastError = `Gmail SMTP: ${err.message}`;
+        }
       }
 
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true, // Use SSL/TLS
-        auth: {
-          user: gmailUser,
-          pass: gmailPass,
-        },
-      });
+      // ---------------- CUSTOM SMTP ----------------
+      if (provider === "smtp") {
+        const host = settings.email_smtp_host;
+        const port = parseInt(settings.email_smtp_port || "587");
+        const user = settings.email_smtp_user;
+        const pass = settings.email_smtp_pass;
+        
+        if (!host || !user || !pass) {
+          lastError = "Custom SMTP credentials missing";
+          continue;
+        }
 
-      const info = await transporter.sendMail({
-        from: `"${fromName}" <${gmailUser}>`,
-        to,
-        subject,
-        html: htmlContent,
-        replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
-      });
-      console.log(`[Mailer] Email sent successfully via Gmail SMTP to ${to} (MessageId: ${info.messageId})`);
+        try {
+          const transporter = nodemailer.createTransport({
+            host,
+            port,
+            secure: port === 465,
+            auth: { user, pass },
+          });
+
+          const info = await transporter.sendMail({
+            from: `"${fromName}" <${fromEmail}>`,
+            to,
+            subject,
+            html: htmlContent,
+            replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
+          });
+
+          console.log(`[Mailer] Successfully sent email to ${to} via Custom SMTP (${info.messageId})`);
+          return { success: true, providerUsed: "Custom SMTP", message: `MessageId: ${info.messageId}` };
+        } catch (err: any) {
+          console.error("[Mailer] Custom SMTP Error:", err.message);
+          lastError = `Custom SMTP: ${err.message}`;
+        }
+      }
+
+      // ---------------- BREVO API ----------------
+      if (provider === "brevo") {
+        const apiKey = settings.email_brevo_api_key;
+        if (!apiKey) {
+          lastError = "Brevo API key missing";
+          continue;
+        }
+
+        try {
+          const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "accept": "application/json",
+              "api-key": apiKey,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              sender: { name: fromName, email: fromEmail },
+              to: [{ email: to }],
+              replyTo: replyTo ? { name: replyTo.name, email: replyTo.email } : undefined,
+              subject,
+              htmlContent,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`[Mailer] Successfully sent email to ${to} via Brevo API`);
+            return { success: true, providerUsed: "Brevo API", message: JSON.stringify(data) };
+          } else {
+            const errText = await response.text();
+            console.error("[Mailer] Brevo API Error:", errText);
+            lastError = `Brevo API: ${errText}`;
+          }
+        } catch (err: any) {
+          console.error("[Mailer] Brevo exception:", err.message);
+          lastError = `Brevo API: ${err.message}`;
+        }
+      }
     }
-    else if (provider === "smtp") {
-      const host = settings.email_smtp_host;
-      const port = parseInt(settings.email_smtp_port || "587");
-      const user = settings.email_smtp_user;
-      const pass = settings.email_smtp_pass;
-      
-      if (!host || !user || !pass) return console.error("Custom SMTP config missing");
 
-      const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass },
-      });
-
-      await transporter.sendMail({
-        from: `"${fromName}" <${fromEmail}>`,
-        to,
-        subject,
-        html: htmlContent,
-        replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
-      });
-    }
-    else if (provider === "brevo") {
-      const apiKey = settings.email_brevo_api_key;
-      if (!apiKey) return console.error("Brevo API key missing");
-
-      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          "accept": "application/json",
-          "api-key": apiKey,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          sender: { name: fromName, email: fromEmail },
-          to: [{ email: to }],
-          replyTo: replyTo ? { name: replyTo.name, email: replyTo.email } : undefined,
-          subject,
-          htmlContent,
-        }),
-      });
-      if (!response.ok) {
-        console.error("Brevo error:", await response.text());
-      }
-    } 
-    else if (provider === "mailgun") {
-      const domain = settings.email_mailgun_domain;
-      const apiKey = settings.email_mailgun_api_key;
-      if (!domain || !apiKey) return console.error("Mailgun config missing");
-
-      const formData = new URLSearchParams();
-      formData.append("from", `${fromName} <${fromEmail}>`);
-      formData.append("to", to);
-      formData.append("subject", subject);
-      formData.append("html", htmlContent);
-      if (replyTo) {
-        formData.append("h:Reply-To", `${replyTo.name} <${replyTo.email}>`);
-      }
-
-      const response = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(`api:${apiKey}`).toString("base64")}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formData.toString(),
-      });
-      if (!response.ok) {
-        console.error("Mailgun error:", await response.text());
-      }
-    }
-  } catch (error) {
-    console.error("Error sending email:", error);
+    return { success: false, message: lastError || "No email provider configured or all providers failed." };
+  } catch (error: any) {
+    console.error("[Mailer] Exception in sendEmail:", error);
+    return { success: false, message: error.message };
   }
 }

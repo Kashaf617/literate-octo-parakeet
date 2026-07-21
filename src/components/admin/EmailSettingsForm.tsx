@@ -34,6 +34,32 @@ export default function EmailSettingsForm({ initialSettings }: { initialSettings
     }
   }
 
+  const [testEmail, setTestEmail] = useState(initialSettings.email_from_address || "devineora7@gmail.com");
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testStatus, setTestStatus] = useState<string | null>(null);
+
+  async function handleSendTestEmail() {
+    setTestingEmail(true);
+    setTestStatus(null);
+    try {
+      const res = await fetch("/api/admin/settings/test-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ testEmail }),
+      });
+      const data = await res.json();
+      setTestingEmail(false);
+      if (res.ok && data.success) {
+        setTestStatus(`✅ ${data.message}`);
+      } else {
+        setTestStatus(`❌ ${data.error || "Failed to send test email."}`);
+      }
+    } catch (err: any) {
+      setTestingEmail(false);
+      setTestStatus(`❌ Error: ${err.message}`);
+    }
+  }
+
   const providers = [
     { value: "brevo", label: "Brevo (Sendinblue)", desc: "Recommended – free tier available" },
     { value: "mailgun", label: "Mailgun", desc: "Best for high volume sending" },
@@ -200,6 +226,35 @@ export default function EmailSettingsForm({ initialSettings }: { initialSettings
         <button onClick={save} disabled={saving} className="btn-primary mt-4 py-3 px-8">
           {saving ? "Saving..." : "Save Email Settings"}
         </button>
+
+        {/* Send Test Email Card */}
+        <div className="p-6 bg-white border border-[#e2e8f0] rounded-xl space-y-4 mt-8">
+          <h4 className="font-bold text-[#0b1221]">📧 Send Test Email</h4>
+          <p className="text-[12px] text-[#64748b]">
+            Verify that your email settings are working by sending a test message to your inbox.
+          </p>
+          <div className="flex gap-3">
+            <input
+              type="email"
+              className="admin-input flex-1"
+              value={testEmail}
+              onChange={e => setTestEmail(e.target.value)}
+              placeholder="Enter your email address (e.g. devineora7@gmail.com)"
+            />
+            <button
+              onClick={handleSendTestEmail}
+              disabled={testingEmail}
+              className="bg-[#0b1221] text-white px-6 py-2.5 rounded-xl text-[13px] font-bold hover:bg-black transition-colors disabled:opacity-50"
+            >
+              {testingEmail ? "Sending..." : "Send Test Email"}
+            </button>
+          </div>
+          {testStatus && (
+            <p className={`text-[12px] p-3 rounded-lg font-medium ${testStatus.startsWith("✅") ? "bg-green-100 text-green-800 border border-green-200" : "bg-red-100 text-red-800 border border-red-200"}`}>
+              {testStatus}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Help sidebar */}
