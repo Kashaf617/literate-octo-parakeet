@@ -60,70 +60,98 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  // Send Order Confirmation Email asynchronously
+  // Send Order Confirmation Email to Customer & Notification to Store Admin
+  const adminEmail = process.env.ADMIN_EMAIL || "devineora7@gmail.com";
+
+  const emailPromises: Promise<any>[] = [];
+
+  // Customer Email
   if (order.email) {
-    sendEmail({
-      to: order.email,
-      subject: `Order Confirmation - #${order.orderNumber}`,
-      htmlContent: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f1eec8; border-radius: 12px; background-color: #ffffff; color: #1e293b;">
-          <div style="text-align: center; border-bottom: 2px solid #C9A227; padding-bottom: 15px; margin-bottom: 20px;">
-            <h1 style="color: #111827; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">DEVINE ORA</h1>
-            <p style="color: #c9a227; margin: 5px 0 0 0; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;">Luxury Timepieces</p>
-          </div>
-          
-          <h2 style="color: #111827; font-size: 18px; margin-top: 0;">Thank you for your order, ${order.customerName}!</h2>
-          <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-            Your order <strong>#${order.orderNumber}</strong> has been successfully placed. We are preparing it for shipment and will notify you when it's on its way.
-          </p>
-          
-          <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-top: 0; margin-bottom: 10px;">Order Summary</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b;">
-                  <th style="padding-bottom: 8px; font-weight: bold;">Item</th>
-                  <th style="padding-bottom: 8px; text-align: center; font-weight: bold;">Qty</th>
-                  <th style="padding-bottom: 8px; text-align: right; font-weight: bold;">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${d.items.map(item => `
-                  <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155;">
-                    <td style="padding: 10px 0;">${item.name}</td>
-                    <td style="padding: 10px 0; text-align: center;">${item.qty}</td>
-                    <td style="padding: 10px 0; text-align: right; font-weight: 500;">PKR ${item.price.toLocaleString()}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
+    emailPromises.push(
+      sendEmail({
+        to: order.email,
+        subject: `Order Confirmation - #${order.orderNumber}`,
+        htmlContent: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f1eec8; border-radius: 12px; background-color: #ffffff; color: #1e293b;">
+            <div style="text-align: center; border-bottom: 2px solid #C9A227; padding-bottom: 15px; margin-bottom: 20px;">
+              <h1 style="color: #111827; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">DEVINE ORA</h1>
+              <p style="color: #c9a227; margin: 5px 0 0 0; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;">Luxury Timepieces</p>
+            </div>
             
-            <div style="margin-top: 15px; text-align: right; font-size: 13px; color: #475569; line-height: 1.6;">
-              <div>Subtotal: <span style="font-weight: 600; color: #1e293b;">PKR ${subtotal.toLocaleString()}</span></div>
-              <div>Shipping Fee: <span style="font-weight: 600; color: #1e293b;">PKR ${d.shippingFee.toLocaleString()}</span></div>
-              ${d.discount > 0 ? `<div>Discount: <span style="font-weight: 600; color: #dc2626;">-PKR ${d.discount.toLocaleString()}</span></div>` : ''}
-              <div style="font-size: 16px; font-weight: 800; color: #c9a227; border-top: 1px solid #e2e8f0; margin-top: 10px; padding-top: 10px;">
-                Total: PKR ${total.toLocaleString()}
+            <h2 style="color: #111827; font-size: 18px; margin-top: 0;">Thank you for your order, ${order.customerName}!</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #475569;">
+              Your order <strong>#${order.orderNumber}</strong> has been successfully placed. We are preparing it for shipment and will notify you when it's on its way.
+            </p>
+            
+            <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-top: 0; margin-bottom: 10px;">Order Summary</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b;">
+                    <th style="padding-bottom: 8px; font-weight: bold;">Item</th>
+                    <th style="padding-bottom: 8px; text-align: center; font-weight: bold;">Qty</th>
+                    <th style="padding-bottom: 8px; text-align: right; font-weight: bold;">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${d.items.map(item => `
+                    <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155;">
+                      <td style="padding: 10px 0;">${item.name}</td>
+                      <td style="padding: 10px 0; text-align: center;">${item.qty}</td>
+                      <td style="padding: 10px 0; text-align: right; font-weight: 500;">PKR ${item.price.toLocaleString()}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              
+              <div style="margin-top: 15px; text-align: right; font-size: 13px; color: #475569; line-height: 1.6;">
+                <div>Subtotal: <span style="font-weight: 600; color: #1e293b;">PKR ${subtotal.toLocaleString()}</span></div>
+                <div>Shipping Fee: <span style="font-weight: 600; color: #1e293b;">PKR ${d.shippingFee.toLocaleString()}</span></div>
+                ${d.discount > 0 ? `<div>Discount: <span style="font-weight: 600; color: #dc2626;">-PKR ${d.discount.toLocaleString()}</span></div>` : ''}
+                <div style="font-size: 16px; font-weight: 800; color: #c9a227; border-top: 1px solid #e2e8f0; margin-top: 10px; padding-top: 10px;">
+                  Total: PKR ${total.toLocaleString()}
+                </div>
               </div>
             </div>
+            
+            <div style="font-size: 12px; color: #64748b; line-height: 1.6; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+              <p style="margin: 0 0 5px 0;"><strong>Shipping Details:</strong></p>
+              <p style="margin: 0 0 15px 0; color: #334155;">
+                ${order.customerName}<br/>
+                ${order.address}<br/>
+                ${order.city}, ${order.province || ''}<br/>
+                Phone: ${order.phone}
+              </p>
+              <p style="margin: 0 0 5px 0;"><strong>Payment Method:</strong> ${d.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : d.paymentMethod.toUpperCase()}</p>
+            </div>
           </div>
-          
-          <div style="font-size: 12px; color: #64748b; line-height: 1.6; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-            <p style="margin: 0 0 5px 0;"><strong>Shipping Details:</strong></p>
-            <p style="margin: 0 0 15px 0; color: #334155;">
-              ${order.customerName}<br/>
-              ${order.address}<br/>
-              ${order.city}, ${order.province || ''}
-            </p>
-            <p style="margin: 0 0 5px 0;"><strong>Payment Method:</strong> ${d.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : d.paymentMethod.toUpperCase()}</p>
-            <p style="margin: 15px 0 0 0; border-top: 1px dashed #e2e8f0; padding-top: 10px; text-align: center; font-style: italic;">
-              If you have any questions, reply directly to this email or reach us at <a href="mailto:devineora7@gmail.com" style="color: #c9a227; text-decoration: none; font-weight: 600;">devineora7@gmail.com</a>.
-            </p>
-          </div>
+        `
+      })
+    );
+  }
+
+  // Always send Admin Notification Email
+  emailPromises.push(
+    sendEmail({
+      to: adminEmail,
+      subject: `🚨 NEW ORDER RECEIVED - #${order.orderNumber} (PKR ${total.toLocaleString()})`,
+      htmlContent: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #0b1221; margin-top: 0;">New Order #${order.orderNumber}</h2>
+          <p style="font-size: 14px; color: #334155;"><strong>Customer Name:</strong> ${order.customerName}</p>
+          <p style="font-size: 14px; color: #334155;"><strong>Phone:</strong> ${order.phone}</p>
+          <p style="font-size: 14px; color: #334155;"><strong>Email:</strong> ${order.email || 'Not provided'}</p>
+          <p style="font-size: 14px; color: #334155;"><strong>Address:</strong> ${order.address}, ${order.city}</p>
+          <p style="font-size: 16px; font-weight: bold; color: #c9a227;"><strong>Total Amount:</strong> PKR ${total.toLocaleString()} (COD)</p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 15px 0;" />
+          <p style="font-size: 13px; color: #64748b;">Log in to your Admin Dashboard to manage and process this order.</p>
         </div>
       `
-    }).catch(err => console.error("Checkout email trigger error:", err));
-  }
+    })
+  );
+
+  // Await all email promises so Vercel Serverless Lambda does not kill execution prematurely
+  await Promise.allSettled(emailPromises);
 
   return NextResponse.json({ ok: true, orderNumber: order.orderNumber, orderId: order.id });
 }
