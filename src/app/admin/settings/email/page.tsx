@@ -1,4 +1,5 @@
 import PageHeader from "@/components/admin/PageHeader";
+// Vercel deployment trigger - Gmail SMTP support
 import EmailSettingsForm from "@/components/admin/EmailSettingsForm";
 import { prisma } from "@/lib/prisma";
 
