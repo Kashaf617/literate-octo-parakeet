@@ -126,7 +126,7 @@ export default async function HomePage({ searchParams }: { searchParams: { editM
         )}
         
         <RecentlyViewed products={displayRecentlyViewed as any} />
-        <Articles articles={articles.length > 0 ? articles.map(a => ({ ...a, date: a.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) })) as any : MOCK_ARTICLES as any} />
+        <Articles articles={articles.length > 0 ? articles.map(a => ({ ...a, date: a.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) })) as any : []} />
         <TrustBadges />
       </main>
       <Footer storeName={general.storeName} />
