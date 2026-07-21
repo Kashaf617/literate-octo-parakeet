@@ -15,7 +15,7 @@ export default async function BlogPage() {
     orderBy: { createdAt: "desc" }
   });
 
-  const displayArticles = articles;
+  const displayArticles = articles.length > 0 ? articles : MOCK_ARTICLES;
 
   return (
     <>
