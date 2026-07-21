@@ -35,6 +35,7 @@ export default function MobileSidebar({
       name: c.name,
       href: `/category/${c.slug}`
     })),
+    { name: "Watch Journal", href: "/blog" },
     { name: "My Favorites", href: "/wishlist" },
     { name: "Contact Us", href: "/contact" },
   ];

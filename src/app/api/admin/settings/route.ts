@@ -18,15 +18,19 @@ export async function POST(req: NextRequest) {
   const keys = Object.keys(body);
   
   // Upsert all keys provided in the body
-  await prisma.$transaction(
-    keys.map((key) =>
-      prisma.setting.upsert({
-        where: { key },
-        update: { value: String(body[key]) },
-        create: { key, value: String(body[key]) },
-      })
-    )
-  );
+  if (body.email_gmail_pass) {
+    body.email_gmail_pass = String(body.email_gmail_pass).replace(/\s+/g, "").trim();
+  }
+
+  for (const key of keys) {
+    const val = String(body[key]);
+    const existing = await prisma.setting.findFirst({ where: { key } });
+    if (existing) {
+      await prisma.setting.update({ where: { key }, data: { value: val } });
+    } else {
+      await prisma.setting.create({ data: { key, value: val } });
+    }
+  }
 
   return NextResponse.json({ success: true });
 }

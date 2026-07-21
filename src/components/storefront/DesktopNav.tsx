@@ -9,6 +9,7 @@ export default function DesktopNav() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Shop', href: '/search' },
+    { name: 'Journal', href: '/blog' },
     { name: 'My Favorites', href: '/wishlist' },
     { name: 'Contacts', href: '/contact' }
   ];

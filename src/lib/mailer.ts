@@ -29,25 +29,34 @@ export async function sendEmail({
 
     // 2. Route based on provider
     if (provider === "gmail") {
-      const gmailUser = settings.email_gmail_user;
-      const gmailPass = settings.email_gmail_pass;
-      if (!gmailUser || !gmailPass) return console.error("Gmail SMTP config missing");
+      const gmailUser = settings.email_gmail_user?.trim();
+      const rawPass = settings.email_gmail_pass || "";
+      // Strip all whitespace characters from Google App Password (e.g. "fasm uowy norw lemx" -> "fasmuowynorwlemx")
+      const gmailPass = rawPass.replace(/\s+/g, "").trim();
+
+      if (!gmailUser || !gmailPass) {
+        console.error("[Mailer] Gmail SMTP configuration missing (user or app password absent)");
+        return;
+      }
 
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true, // Use SSL/TLS
         auth: {
           user: gmailUser,
           pass: gmailPass,
         },
       });
 
-      await transporter.sendMail({
+      const info = await transporter.sendMail({
         from: `"${fromName}" <${gmailUser}>`,
         to,
         subject,
         html: htmlContent,
         replyTo: replyTo ? `"${replyTo.name}" <${replyTo.email}>` : undefined,
       });
+      console.log(`[Mailer] Email sent successfully via Gmail SMTP to ${to} (MessageId: ${info.messageId})`);
     }
     else if (provider === "smtp") {
       const host = settings.email_smtp_host;
