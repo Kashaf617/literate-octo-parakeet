@@ -32,7 +32,15 @@ export async function sendEmail({
     const gmailPass = (settings.email_gmail_pass || "").replace(/\s+/g, "").trim();
 
     // Provider order based on selection, with automatic fallback
-    const providerQueue = [activeProvider];
+    const providerQueue: string[] = [];
+    const isGmailAddress = fromEmail.toLowerCase().includes("@gmail.com");
+
+    if (isGmailAddress && gmailUser && gmailPass) {
+      providerQueue.push("gmail");
+    }
+    if (!providerQueue.includes(activeProvider)) {
+      providerQueue.push(activeProvider);
+    }
     if (!providerQueue.includes("gmail") && gmailUser && gmailPass) providerQueue.push("gmail");
     if (!providerQueue.includes("brevo") && settings.email_brevo_api_key) providerQueue.push("brevo");
     if (!providerQueue.includes("smtp") && settings.email_smtp_host) providerQueue.push("smtp");
