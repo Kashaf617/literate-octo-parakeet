@@ -21,6 +21,27 @@ export default function OrdersTable({ initial }: { initial: Order[] }) {
     return statusMatch && qMatch;
   });
 
+  const [clearing, setClearing] = useState(false);
+
+  async function handleClearAllOrders() {
+    if (!confirm("Are you sure you want to delete ALL test orders from the database? This cannot be undone.")) return;
+    setClearing(true);
+    try {
+      const res = await fetch("/api/admin/orders/clear-all", { method: "DELETE" });
+      const data = await res.json();
+      setClearing(false);
+      if (res.ok && data.success) {
+        alert(data.message);
+        window.location.reload();
+      } else {
+        alert(`Failed to clear orders: ${data.error || "Unknown error"}`);
+      }
+    } catch (err: any) {
+      setClearing(false);
+      alert(`Error: ${err.message}`);
+    }
+  }
+
   return (
     <div className="admin-card">
       <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -33,7 +54,18 @@ export default function OrdersTable({ initial }: { initial: Order[] }) {
             {s} {s !== "all" && `(${initial.filter((o) => o.orderStatus === s).length})`}
           </button>
         ))}
-        <input className="admin-input ml-auto max-w-[220px]" placeholder="Search order, name, phone..." value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="ml-auto flex items-center gap-3">
+          <input className="admin-input max-w-[220px]" placeholder="Search order, name, phone..." value={q} onChange={(e) => setQ(e.target.value)} />
+          {initial.length > 0 && (
+            <button
+              onClick={handleClearAllOrders}
+              disabled={clearing}
+              className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors shrink-0 disabled:opacity-50"
+            >
+              {clearing ? "Clearing..." : "🗑️ Clear Test Orders"}
+            </button>
+          )}
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
