@@ -75,11 +75,48 @@ export default function CartPage() {
   };
 
   const provinceCities: Record<string, string[]> = {
-    "Punjab": ["Lahore", "Faisalabad", "Rawalpindi", "Multan", "Gujranwala", "Sialkot", "Sargodha", "Bahawalpur", "Sheikhupura", "Jhang", "Gujrat", "Kasur", "Sahiwal", "Okara", "Wah Cantonment", "Dera Ghazi Khan", "Chiniot", "Kamoke", "Sadiqabad", "Burewala", "Vehari", "Muridke"],
-    "Sindh": ["Karachi", "Hyderabad", "Sukkur", "Larkana", "Nawabshah", "Mirpur Khas", "Jacobabad", "Shikarpur", "Khairpur", "Dadu", "Tando Adam", "Tando Allahyar", "Umerkot", "Badin"],
-    "KPK": ["Peshawar", "Mardan", "Mingora", "Kohat", "Abbottabad", "Swat", "Dera Ismail Khan", "Nowshera", "Charsadda", "Mansehra", "Swabi", "Timargara", "Bannu", "Batkhela"],
-    "Balochistan": ["Quetta", "Gwadar", "Khuzdar", "Chaman", "Turbat", "Sibi", "Hub", "Zhob", "Dera Murad Jamali"],
-    "Islamabad": ["Islamabad"]
+    "Punjab": [
+      "Lahore", "Faisalabad", "Rawalpindi", "Multan", "Gujranwala", "Sialkot", "Sargodha", "Bahawalpur",
+      "Sheikhupura", "Jhang", "Gujrat", "Kasur", "Sahiwal", "Okara", "Wah Cantonment", "Dera Ghazi Khan",
+      "Chiniot", "Kamoke", "Hafizabad", "Sadiqabad", "Burewala", "Khanewal", "Muzaffargarh", "Mandi Bahauddin",
+      "Jhelum", "Khanpur", "Pakpattan", "Bahawalnagar", "Toba Tek Singh", "Muridke", "Vehari", "Pattoki",
+      "Haroonabad", "Mianwali", "Shakargarh", "Taxila", "Attock", "Rawala", "Samundri", "Jaranwala",
+      "Bhalwal", "Daska", "Gojra", "Ahmadpur East", "Murree", "Wazirabad", "Layyah", "Kot Addu",
+      "Chishtian", "Chakwal", "Kamalia", "Mailsi", "Narowal", "Lodhran", "Jalalpur Jattan", "Bhakkar",
+      "Khushab", "Mian Channu", "Depalpur", "Sambrial", "Ali Pur", "Hassan Abdal", "Renala Khurd",
+      "Sangla Hill", "Pindi Bhattian", "Jand", "Talagang", "Lalamusa", "Phalia", "Dina", "Fort Abbas",
+      "Kabirwala", "Pasrur", "Alipur Chatha", "Kahror Pakka", "Chichawatni", "Dunyapur", "Jampur",
+      "Rajanpur", "Isa Khel", "Choa Saidan Shah", "Kallar Kahar", "Kallar Syedan", "Nankana Sahib",
+      "Pind Dadan Khan", "Pir Mahal", "Raiwind", "Rahim Yar Khan", "Shorkot", "Shujaabad", "Tandlianwala",
+      "Taunsa Sharif", "Yazman", "Zafarwal"
+    ],
+    "Sindh": [
+      "Karachi", "Hyderabad", "Sukkur", "Larkana", "Nawabshah", "Mirpur Khas", "Jacobabad", "Shikarpur",
+      "Khairpur", "Dadu", "Tando Adam", "Tando Allahyar", "Umerkot", "Badin", "Ghotki", "Daharki",
+      "Kandhkot", "Shahdadkot", "Thatta", "Sehwan Sharif", "Kotri", "Tando Muhammad Khan", "Kashmore",
+      "Sanghar", "Matiari", "Hala", "Ratodero", "Gambat", "Kandiaro", "Khipro", "Naushahro Feroze",
+      "Rohri", "Sakrand", "Jamshoro", "Pano Akil", "Mithi", "Islamkot", "Bhiria City", "Mehar", "Shahdadpur"
+    ],
+    "KPK": [
+      "Peshawar", "Mardan", "Mingora", "Kohat", "Abbottabad", "Swat", "Dera Ismail Khan", "Nowshera",
+      "Charsadda", "Mansehra", "Swabi", "Timargara", "Bannu", "Batkhela", "Haripur", "Lakki Marwat",
+      "Tank", "Karak", "Chitral", "Dir", "Hangu", "Daggar", "Parachinar", "Malakand", "Upper Dir",
+      "Lower Dir", "Risalpur", "Topi", "Shabqadar", "Landi Kotal"
+    ],
+    "Balochistan": [
+      "Quetta", "Gwadar", "Khuzdar", "Chaman", "Turbat", "Sibi", "Hub", "Zhob", "Dera Murad Jamali",
+      "Loralai", "Pishin", "Nushki", "Kalat", "Kharan", "Mastung", "Pasni", "Ormara", "Sui",
+      "Dera Bugti", "Barkhan", "Musakhel", "Qila Saifullah", "Qila Abdullah", "Mach", "Usta Muhammad", "Jiwani"
+    ],
+    "Islamabad": [
+      "Islamabad"
+    ],
+    "Azad Kashmir": [
+      "Muzaffarabad", "Mirpur", "Rawalakot", "Kotli", "Bhimber", "Bagh", "Pallandri", "Hajira", "Hattian Bala"
+    ],
+    "Gilgit-Baltistan": [
+      "Gilgit", "Skardu", "Hunza", "Nagar", "Gupis", "Ghizer", "Chilas", "Astore", "Khaplu", "Shigar"
+    ]
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
@@ -377,34 +414,40 @@ export default function CartPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="relative">
-                        <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-black/60 mb-2">City</label>
-                        <input type="hidden" name="city" value={citySearch} />
-                        <input
-                          required autoComplete="off" value={citySearch}
-                          onChange={(e) => { setCitySearch(e.target.value); setShowCityDropdown(true); }}
-                          onFocus={() => setShowCityDropdown(true)}
-                          onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
-                          className={inputCls} placeholder="Search or select city"
-                        />
-                        {showCityDropdown && (
-                          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)] max-h-52 overflow-y-auto">
-                            {(provinceCities[selectedProvince] || [])
-                              .filter(c => c.toLowerCase().includes(citySearch.toLowerCase()))
-                              .map(city => (
-                                <div key={city} onClick={() => { setCitySearch(city); setShowCityDropdown(false); }}
-                                  className="px-4 py-2.5 text-sm text-black hover:bg-[#f8f9fa] cursor-pointer border-b border-[#f8f9fb] last:border-0 transition-colors"
-                                >
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-black/60 mb-2">City *</label>
+                        <select
+                          name="city"
+                          required
+                          value={citySearch}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCitySearch(val);
+                            for (const [prov, cities] of Object.entries(provinceCities)) {
+                              if (cities.includes(val)) {
+                                setSelectedProvince(prov);
+                                break;
+                              }
+                            }
+                          }}
+                          className={inputCls}
+                        >
+                          <option value="">-- Select Your City --</option>
+                          {Object.entries(provinceCities).map(([prov, cities]) => (
+                            <optgroup key={prov} label={`--- ${prov} ---`}>
+                              {cities.map((city) => (
+                                <option key={city} value={city}>
                                   {city}
-                                </div>
+                                </option>
                               ))}
-                          </div>
-                        )}
+                            </optgroup>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-black/60 mb-2">Province</label>
                         <select name="province" value={selectedProvince}
-                          onChange={(e) => { setSelectedProvince(e.target.value); setCitySearch(""); }}
+                          onChange={(e) => { setSelectedProvince(e.target.value); }}
                           className={inputCls}
                         >
                           {Object.keys(provinceCities).map(p => <option key={p} value={p}>{p}</option>)}
