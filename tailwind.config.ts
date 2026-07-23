@@ -18,8 +18,8 @@ const config: Config = {
         gold: { DEFAULT: "#C9A227", dark: "#A8831B", light: "#F2E8CB" }
       },
       fontFamily: {
-        sans: ["Montserrat", "Poppins", "system-ui", "sans-serif"],
-        heading: ["Playfair Display", "serif"]
+        sans: ["var(--font-montserrat)", "var(--font-poppins)", "Montserrat", "Poppins", "system-ui", "sans-serif"],
+        heading: ["var(--font-playfair)", "Playfair Display", "serif"]
       },
       boxShadow: {
         card: "0 2px 10px rgba(18,32,67,.06)",

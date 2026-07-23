@@ -2,6 +2,28 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { getSetting, DEFAULT_SETTINGS } from "@/lib/settings";
 import PixelScripts from "@/components/storefront/PixelScripts";
+import { Montserrat, Playfair_Display, Poppins } from "next/font/google";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-montserrat",
+  display: "swap"
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-playfair",
+  display: "swap"
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap"
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -36,13 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const pixels = await getSetting("pixels", DEFAULT_SETTINGS.pixels);
   return (
-    <html lang="en" className="overflow-x-hidden">
-      <head>
-        <meta charSet="UTF-8" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en" className={`overflow-x-hidden ${montserrat.variable} ${playfair.variable} ${poppins.variable}`}>
       <body className="font-sans text-ink bg-bg overflow-x-hidden w-full max-w-[100vw]">
         <PixelScripts pixels={pixels} />
         {children}
