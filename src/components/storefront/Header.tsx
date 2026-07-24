@@ -9,7 +9,7 @@ import HeaderCartCount from "./HeaderCartCount";
 import { prisma } from "@/lib/prisma";
 
 export default async function Header({ 
-  storeName, tagline, supportPhone, freeShippingText, marqueeText = "Follow us and get a chance to win 80% off", marqueeSpeed = 20
+  storeName, tagline, supportPhone, freeShippingText, marqueeText = "FLAT 40% OFF – LIMITED TIME OFFER", marqueeSpeed = 20
 }: { 
   storeName: string; tagline: string; supportPhone: string; freeShippingText: string; marqueeText?: string; marqueeSpeed?: number;
 }) {
