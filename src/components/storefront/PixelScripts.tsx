@@ -1,5 +1,5 @@
 import Script from "next/script";
-import MetaPixel from "./MetaPixel";
+import MetaPixelRouteTracker from "./MetaPixelRouteTracker";
 
 interface Pixels {
   ga4Id?: string;
@@ -10,11 +10,9 @@ interface Pixels {
 }
 
 export default function PixelScripts({ pixels }: { pixels: Pixels }) {
-  const metaPixelId = pixels?.metaPixelId || "1579772036918681";
-
   return (
     <>
-      <MetaPixel pixelId={metaPixelId} />
+      <MetaPixelRouteTracker />
       {pixels?.ga4Id && (
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${pixels.ga4Id}`} strategy="afterInteractive" />
