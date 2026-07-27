@@ -10,7 +10,7 @@ interface Pixels {
 }
 
 export default function PixelScripts({ pixels }: { pixels: Pixels }) {
-  const metaPixelId = pixels?.metaPixelId || "1579772036918681";
+  const metaPixelId = "1579772036918681";
 
   return (
     <>
