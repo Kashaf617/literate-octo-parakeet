@@ -91,9 +91,11 @@ export const trackInitiateCheckout = (total: number, currency: string, items: an
   
   if (window.fbq) {
     window.fbq('track', 'InitiateCheckout', {
+      content_ids: items.map(item => item.productId || item.id),
+      content_type: 'product',
       value: total,
-      currency: currency,
-      num_items: items.reduce((acc, item) => acc + item.quantity, 0),
+      currency: currency || 'PKR',
+      num_items: items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0),
     });
   }
   
@@ -102,10 +104,10 @@ export const trackInitiateCheckout = (total: number, currency: string, items: an
       value: total,
       currency: currency,
       contents: items.map(item => ({
-        content_id: item.productId,
+        content_id: item.productId || item.id,
         content_name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity || item.qty || 1
       }))
     });
   }
@@ -115,10 +117,10 @@ export const trackInitiateCheckout = (total: number, currency: string, items: an
       currency: currency,
       value: total,
       items: items.map(item => ({
-        item_id: item.productId,
+        item_id: item.productId || item.id,
         item_name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity || item.qty || 1
       }))
     });
   }
@@ -129,10 +131,11 @@ export const trackPurchase = (orderId: string, total: number, currency: string, 
   
   if (window.fbq) {
     window.fbq('track', 'Purchase', {
-      value: total,
-      currency: currency,
-      content_ids: items.map(item => item.productId),
+      content_ids: items.map(item => item.productId || item.id),
       content_type: 'product',
+      value: total,
+      currency: currency || 'PKR',
+      num_items: items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0),
       order_id: orderId
     });
   }
@@ -143,10 +146,10 @@ export const trackPurchase = (orderId: string, total: number, currency: string, 
       currency: currency,
       order_id: orderId,
       contents: items.map(item => ({
-        content_id: item.productId,
+        content_id: item.productId || item.id,
         content_name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity || item.qty || 1
       }))
     });
   }
@@ -157,10 +160,10 @@ export const trackPurchase = (orderId: string, total: number, currency: string, 
       value: total,
       currency: currency,
       items: items.map(item => ({
-        item_id: item.productId,
+        item_id: item.productId || item.id,
         item_name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity || item.qty || 1
       }))
     });
   }

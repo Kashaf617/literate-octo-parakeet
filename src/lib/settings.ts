@@ -27,7 +27,7 @@ export async function setSetting(key: string, value: unknown) {
 export const DEFAULT_SETTINGS = {
   general: { storeName: "DEVINE ORA", tagline: "Luxury Crafted to Perfection", supportPhone: "+92 370 7765435", currency: "PKR", freeShippingText: "Free Delivery Nationwide", company_whatsapp: "+92 370 7765435" },
   seo: { metaTitle: "DEVINE ORA — Premium Luxury Watches", metaDescription: "Discover elegant, premium, and modern watches from DEVINE ORA. Timeless watchmaking craftsmanship.", ogImage: "", robotsIndex: true, sitemapEnabled: true },
-  pixels: { ga4Id: "", metaPixelId: "", tiktokPixelId: "", snapPixelId: "", gtmId: "" },
+  pixels: { ga4Id: "", metaPixelId: "1579772036918681", tiktokPixelId: "", snapPixelId: "", gtmId: "" },
   payments: {
     codEnabled: true,
     jazzcash: { enabled: false, merchantId: "", password: "", integritySalt: "", mode: "sandbox", displayNumber: "", displayName: "" },
