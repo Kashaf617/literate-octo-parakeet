@@ -6,19 +6,28 @@ declare global {
   }
 }
 
+// Both Meta Pixel IDs — fire all events on both accounts
+const META_PIXEL_IDS = ["1598075851656701", "1579772036918681"];
+
+/** Helper: fire a Meta standard event on ALL pixel accounts */
+function fbqAll(eventType: "track" | "trackCustom", event: string, data?: object) {
+  if (typeof window === "undefined" || !window.fbq) return;
+  META_PIXEL_IDS.forEach((id) => {
+    window.fbq("trackSingle", id, event, data ?? {});
+  });
+}
+
 export const trackViewContent = (product: { id: string, name: string, price: number, currency: string }) => {
   if (typeof window === 'undefined') return;
-  
-  if (window.fbq) {
-    window.fbq('track', 'ViewContent', {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_type: 'product',
-      value: product.price,
-      currency: product.currency,
-    });
-  }
-  
+
+  fbqAll("track", "ViewContent", {
+    content_ids: [product.id],
+    content_name: product.name,
+    content_type: 'product',
+    value: product.price,
+    currency: product.currency,
+  });
+
   if (window.ttq) {
     window.ttq.track('ViewContent', {
       contents: [{
@@ -31,7 +40,7 @@ export const trackViewContent = (product: { id: string, name: string, price: num
       currency: product.currency,
     });
   }
-  
+
   if (window.gtag) {
     window.gtag('event', 'view_item', {
       currency: product.currency,
@@ -48,17 +57,15 @@ export const trackViewContent = (product: { id: string, name: string, price: num
 
 export const trackAddToCart = (product: { id: string, name: string, price: number, currency: string, quantity: number }) => {
   if (typeof window === 'undefined') return;
-  
-  if (window.fbq) {
-    window.fbq('track', 'AddToCart', {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_type: 'product',
-      value: product.price * product.quantity,
-      currency: product.currency,
-    });
-  }
-  
+
+  fbqAll("track", "AddToCart", {
+    content_ids: [product.id],
+    content_name: product.name,
+    content_type: 'product',
+    value: product.price * product.quantity,
+    currency: product.currency,
+  });
+
   if (window.ttq) {
     window.ttq.track('AddToCart', {
       contents: [{
@@ -71,7 +78,7 @@ export const trackAddToCart = (product: { id: string, name: string, price: numbe
       currency: product.currency,
     });
   }
-  
+
   if (window.gtag) {
     window.gtag('event', 'add_to_cart', {
       currency: product.currency,
@@ -88,17 +95,15 @@ export const trackAddToCart = (product: { id: string, name: string, price: numbe
 
 export const trackInitiateCheckout = (total: number, currency: string, items: any[]) => {
   if (typeof window === 'undefined') return;
-  
-  if (window.fbq) {
-    window.fbq('track', 'InitiateCheckout', {
-      content_ids: items.map(item => item.productId || item.id),
-      content_type: 'product',
-      value: total,
-      currency: currency || 'PKR',
-      num_items: items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0),
-    });
-  }
-  
+
+  fbqAll("track", "InitiateCheckout", {
+    content_ids: items.map(item => item.productId || item.id),
+    content_type: 'product',
+    value: total,
+    currency: currency || 'PKR',
+    num_items: items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0),
+  });
+
   if (window.ttq) {
     window.ttq.track('InitiateCheckout', {
       value: total,
@@ -111,7 +116,7 @@ export const trackInitiateCheckout = (total: number, currency: string, items: an
       }))
     });
   }
-  
+
   if (window.gtag) {
     window.gtag('event', 'begin_checkout', {
       currency: currency,
@@ -128,18 +133,16 @@ export const trackInitiateCheckout = (total: number, currency: string, items: an
 
 export const trackPurchase = (orderId: string, total: number, currency: string, items: any[]) => {
   if (typeof window === 'undefined') return;
-  
-  if (window.fbq) {
-    window.fbq('track', 'Purchase', {
-      content_ids: items.map(item => item.productId || item.id),
-      content_type: 'product',
-      value: total,
-      currency: currency || 'PKR',
-      num_items: items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0),
-      order_id: orderId
-    });
-  }
-  
+
+  fbqAll("track", "Purchase", {
+    content_ids: items.map(item => item.productId || item.id),
+    content_type: 'product',
+    value: total,
+    currency: currency || 'PKR',
+    num_items: items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0),
+    order_id: orderId
+  });
+
   if (window.ttq) {
     window.ttq.track('CompletePayment', {
       value: total,
@@ -153,7 +156,7 @@ export const trackPurchase = (orderId: string, total: number, currency: string, 
       }))
     });
   }
-  
+
   if (window.gtag) {
     window.gtag('event', 'purchase', {
       transaction_id: orderId,

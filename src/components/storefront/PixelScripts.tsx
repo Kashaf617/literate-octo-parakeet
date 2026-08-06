@@ -9,28 +9,26 @@ interface Pixels {
   gtmId?: string;
 }
 
-export default function PixelScripts({ pixels }: { pixels: Pixels }) {
-  const metaPixelId = "1579772036918681";
+// Both Meta Pixel IDs — fire together for full tracking coverage
+const META_PIXEL_IDS = ["1598075851656701", "1579772036918681"];
 
+export default function PixelScripts({ pixels }: { pixels: Pixels }) {
   return (
     <>
       <MetaPixelRouteTracker />
-      {metaPixelId && (
-        <>
-          <Script id="meta-pixel-init" strategy="afterInteractive">
-            {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${metaPixelId}');fbq('track','PageView');`}
-          </Script>
-          <noscript>
-            <img
-              height="1"
-              width="1"
-              style={{ display: "none" }}
-              src={`https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1`}
-              alt=""
-            />
-          </noscript>
-        </>
-      )}
+
+      {/* ── Meta Pixel (both accounts) ── */}
+      <Script id="meta-pixel-init" strategy="afterInteractive">
+        {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1598075851656701');fbq('init','1579772036918681');fbq('track','PageView');`}
+      </Script>
+      <noscript>
+        <img height="1" width="1" style={{ display: "none" }}
+          src="https://www.facebook.com/tr?id=1598075851656701&ev=PageView&noscript=1" alt="" />
+      </noscript>
+      <noscript>
+        <img height="1" width="1" style={{ display: "none" }}
+          src="https://www.facebook.com/tr?id=1579772036918681&ev=PageView&noscript=1" alt="" />
+      </noscript>
       {pixels?.ga4Id && (
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${pixels.ga4Id}`} strategy="afterInteractive" />

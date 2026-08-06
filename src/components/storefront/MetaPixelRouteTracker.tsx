@@ -15,9 +15,10 @@ function RouteTrackerInner() {
       return;
     }
 
-    // Fire PageView on client-side route changes (SPA navigation)
+    // Fire PageView on client-side route changes for both pixel accounts
     if (typeof window !== "undefined" && window.fbq) {
-      window.fbq("track", "PageView");
+      window.fbq("trackSingle", "1598075851656701", "PageView");
+      window.fbq("trackSingle", "1579772036918681", "PageView");
     }
   }, [pathname, searchParams]);
 
