@@ -16,10 +16,11 @@ export default function ShippingPolicyPage() {
       <section>
         <h2 className="text-2xl font-bold text-[#0f172a] mb-4">2. Shipping Rates and Estimates</h2>
         <p>
-          We offer **100% Free Shipping all over Pakistan** on all orders. There are no minimum order limits or hidden fees.
+          We offer <strong>FREE Shipping on all orders above Rs. 10,000</strong> all over Pakistan. For orders below Rs. 10,000, a flat delivery charge of <strong>Rs. 270</strong> applies.
         </p>
         <ul className="list-disc pl-5 space-y-2 mt-4">
-          <li><strong>Standard Shipping:</strong> 2-4 business days (Free of cost).</li>
+          <li><strong>Free Shipping:</strong> Orders Rs. 10,000 and above — 2-4 business days, completely free.</li>
+          <li><strong>Standard Delivery:</strong> Orders below Rs. 10,000 — Rs. 270 flat charge, 2-4 business days.</li>
           <li><strong>Cash on Delivery:</strong> Available across all major cities of Pakistan at no additional charge.</li>
         </ul>
       </section>

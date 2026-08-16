@@ -96,7 +96,7 @@ export default function MobileSidebar({
               <span className="text-lg">🚚</span>
               <div>
                 <h4 className="text-[10px] font-black uppercase tracking-wider text-black">Free Shipping</h4>
-                <p className="text-[9px] text-[#6b6b6b] uppercase tracking-wider mt-0.5">Free shipping all over Pakistan</p>
+                <p className="text-[9px] text-[#6b6b6b] uppercase tracking-wider mt-0.5">Free on orders Rs. 10,000+ | Rs. 270 below</p>
               </div>
             </div>
             <div className="flex items-start gap-3">

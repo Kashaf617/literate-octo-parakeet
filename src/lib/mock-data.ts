@@ -58,7 +58,7 @@ export const FOOTER_LINKS = {
 };
 
 export const TRUST_BADGES = [
-  {icon: "Truck", title: "Free Shipping", subtitle: "Free shipping all over Pakistan" },
+  {icon: "Truck", title: "Free Shipping", subtitle: "Free on orders Rs. 10,000+" },
   { icon: "RotateCcw", title: "Easy Returns", subtitle: "3-day return policy" },
   { icon: "Shield", title: "Secure Payments", subtitle: "100% protected checkout" },
   { icon: "Headphones", title: "24/7 Support", subtitle: "Dedicated help center" }

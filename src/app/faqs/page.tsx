@@ -17,7 +17,7 @@ export default function FAQsPage() {
     },
     {
       q: "Do you ship internationally?",
-      a: "Currently, we only ship nationwide within Pakistan. We provide Free Shipping all over Pakistan with no minimum order requirements!"
+      a: "Currently, we only ship nationwide within Pakistan. Orders above Rs. 10,000 get FREE shipping. For orders below Rs. 10,000, a flat delivery charge of Rs. 270 applies."
     },
     {
       q: "What is your return policy?",
