@@ -72,7 +72,7 @@ export default async function HomePage({ searchParams }: { searchParams: { editM
         tagline={general.tagline}
         supportPhone={general.supportPhone}
         freeShippingText={general.freeShippingText}
-        marqueeText={settingsMap['marquee_text'] || "FLAT 40% OFF – LIMITED TIME OFFER"}
+        marqueeText={settingsMap['marquee_text'] || "FLAT 50% OFF – LIMITED TIME OFFER"}
         marqueeSpeed={Number(settingsMap['marquee_speed']) || 20}
       />
       <main className="bg-[#f8f9fa]">

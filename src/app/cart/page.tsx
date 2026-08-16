@@ -119,10 +119,13 @@ export default function CartPage() {
     ]
   };
 
+  const DELIVERY_FEE = 270;
+  const FREE_SHIPPING_THRESHOLD = 10000;
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const shipping = 0;
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DELIVERY_FEE;
   const couponDiscount = appliedCoupon?.discountAmount || 0;
   const total = subtotal + shipping - couponDiscount;
+  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
   // Tracking Effect
   useEffect(() => {
@@ -180,6 +183,7 @@ export default function CartPage() {
       province: fd.get("province") as string,
       postalCode: fd.get("postal") as string,
       total,
+      shippingFee: shipping,
       couponCode: appliedCoupon?.code || undefined,
       discountAmount: appliedCoupon?.discountAmount || undefined,
       paymentMethod,
@@ -455,10 +459,30 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <div className={`flex items-center gap-3 p-3.5 rounded-xl text-sm font-medium ${shipping === 0 ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                      <Truck className="w-4 h-4 shrink-0" />
-                      { "🎉 Free Shipping All Over Pakistan!" }
-                    </div>
+                    {shipping === 0 ? (
+                      <div className="flex items-center gap-3 p-3.5 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700">
+                        <Truck className="w-4 h-4 shrink-0" />
+                        🎉 Free Shipping Applied!
+                      </div>
+                    ) : (
+                      <div className="rounded-xl overflow-hidden border border-amber-200 bg-amber-50">
+                        <div className="flex items-center gap-3 p-3.5 text-sm font-medium text-amber-700">
+                          <Truck className="w-4 h-4 shrink-0" />
+                          <div className="flex-1">
+                            <p>Add <strong>Rs. {amountToFreeShipping.toLocaleString()}</strong> more for FREE shipping</p>
+                            <div className="mt-1.5 h-1.5 bg-amber-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                                style={{ width: `${Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="px-3.5 pb-3 text-xs text-amber-600 font-medium">
+                          Delivery charge: <strong>Rs. 270</strong> • Free on orders Rs. 10,000+
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -555,9 +579,9 @@ export default function CartPage() {
                     <span className="font-semibold text-black">Rs. {subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-black/60">Shipping</span>
+                    <span className="text-black/60">Delivery</span>
                     <span className={`font-semibold ${shipping === 0 ? "text-emerald-600" : "text-black"}`}>
-                      {shipping === 0 ? "Free 🎉" : `Rs. ${shipping}`}
+                      {shipping === 0 ? "FREE 🎉" : `Rs. ${shipping.toLocaleString()}`}
                     </span>
                   </div>
                   {appliedCoupon && (

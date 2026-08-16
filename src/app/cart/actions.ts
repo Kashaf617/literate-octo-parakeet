@@ -12,9 +12,10 @@ export async function createOrder(data: {
   province: string;
   postalCode: string;
   total: number;
+  shippingFee?: number;
   couponCode?: string;
   discountAmount?: number;
-  paymentMethod?: string; // 'cod' | 'advance'
+  paymentMethod?: string;
   items: Array<{
     productId?: string | null;
     name: string;
@@ -46,7 +47,9 @@ export async function createOrder(data: {
       city: data.city,
       province: data.province,
       postalCode: data.postalCode,
-      subtotal: data.total,
+      subtotal: data.total - (data.shippingFee || 0),
+      shippingFee: data.shippingFee || 0,
+      discount: data.discountAmount || 0,
       total: finalTotal,
       paymentMethod: paymentMethod,
       items: {
