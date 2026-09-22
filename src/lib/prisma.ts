@@ -8,7 +8,7 @@ export const prisma =
     log: ["error"]
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;
 
 // Wraps any promise with a timeout – returns fallback if DB is slow
 export async function withTimeout<T>(promise: Promise<T>, fallback: T, ms = 8000): Promise<T> {
