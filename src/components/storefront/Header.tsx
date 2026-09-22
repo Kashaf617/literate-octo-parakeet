@@ -6,7 +6,7 @@ import MobileSidebar from "./MobileSidebar";
 import HeaderWishlistCount from "./HeaderWishlistCount";
 import DesktopNav from "./DesktopNav";
 import HeaderCartCount from "./HeaderCartCount";
-import { prisma } from "@/lib/prisma";
+import { prisma, withTimeout } from "@/lib/prisma";
 
 export default async function Header({ 
   storeName, tagline, supportPhone, freeShippingText, marqueeText = "FLAT 50% OFF – LIMITED TIME OFFER", marqueeSpeed = 20
@@ -15,10 +15,13 @@ export default async function Header({
 }) {
   const session = await getCustomerSession();
 
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" }
-  });
+  const categories = await withTimeout(
+    prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" }
+    }),
+    []
+  );
 
   return (
     <>
