@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getSetting("seo", DEFAULT_SETTINGS.seo),
     getSetting("general", DEFAULT_SETTINGS.general),
   ]);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://www.devineora.online";
   return {
     metadataBase: new URL(siteUrl),
     title: { default: seo.metaTitle || general.storeName, template: `%s | ${general.storeName}` },
