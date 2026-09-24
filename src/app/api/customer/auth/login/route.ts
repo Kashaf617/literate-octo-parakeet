@@ -31,9 +31,15 @@ export async function POST(req: NextRequest) {
       name: customer.name
     });
 
-    await setCustomerSessionCookie(token);
-
-    return NextResponse.json({ success: true });
+    const res = NextResponse.json({ success: true });
+    res.cookies.set("devineora_customer_session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30
+    });
+    return res;
   } catch (err: any) {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }

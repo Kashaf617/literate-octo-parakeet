@@ -5,14 +5,26 @@ import { z } from "zod";
 const schema = z.object({ email: z.string().email(), password: z.string().min(1) });
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  try {
+    const body = await req.json().catch(() => null);
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
-  const user = await loginAdmin(parsed.data.email, parsed.data.password);
-  if (!user) return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    const user = await loginAdmin(parsed.data.email, parsed.data.password);
+    if (!user) return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
 
-  const token = await createSessionToken({ sub: user.id, email: user.email, name: user.name, role: user.role });
-  await setSessionCookie(token);
-  return NextResponse.json({ ok: true });
+    const token = await createSessionToken({ sub: user.id, email: user.email, name: user.name, role: user.role });
+    const res = NextResponse.json({ ok: true });
+    res.cookies.set("devineora_admin_session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7
+    });
+    return res;
+  } catch (err: any) {
+    console.error("Admin login error:", err);
+    return NextResponse.json({ error: err.message || "Login failed" }, { status: 500 });
+  }
 }
