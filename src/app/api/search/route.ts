@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
       where: {
         status: "active",
         OR: [
-          { name: { contains: query } },
-          { description: { contains: query } }
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } }
         ]
       },
       select: {
