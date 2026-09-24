@@ -80,8 +80,8 @@ export default async function HomePage({ searchParams }: { searchParams: { editM
           <HeroBanners banners={heroBanners as any} isEditMode={isEditMode} />
         ) : (
           <HeroBanners isEditMode={isEditMode} banners={[
-            { id: 'demo-hero-1', title: 'Upload Hero Image', subtitle: 'Click to upload your main hero image', eyebrow: 'Welcome', image: '', position: 'hero', buttonText: 'Shop Now', link: '#' },
-            { id: 'demo-hero-2', title: 'Secondary Banner', subtitle: 'Upload a secondary image', eyebrow: 'Featured', image: '', position: 'hero', buttonText: 'View More', link: '#' }
+            { id: 'luxury-hero-1', title: 'Timeless Elegance & Precision', subtitle: 'Experience the pinnacle of luxury Swiss craftsmanship designed for those who value every second.', eyebrow: 'THE AUTUMN COLLECTION', image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1600&q=85', position: 'hero', buttonText: 'Explore Collection', link: '/search' },
+            { id: 'luxury-hero-2', title: 'The Chronograph Masterpiece', subtitle: 'Crafted with surgical-grade stainless steel and scratch-resistant sapphire crystal.', eyebrow: 'EXECUTIVE SERIES', image: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=1600&q=85', position: 'hero', buttonText: 'View Timepieces', link: '/search' }
           ] as any} />
         )}
         <CategoryGrid categories={categories as any} title={settingsMap['heading_categories']} isEditMode={isEditMode} />
