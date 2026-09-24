@@ -101,8 +101,8 @@ export default async function HomePage({ searchParams }: { searchParams: { editM
             subtitle: "DEVINE ORA watches are assembled by master watchmakers with hand-polished steel and sapphire glass.",
             eyebrow: "OUR CRAFTSMANSHIP",
             buttonText: "Discover Craftsmanship",
-            image: "/api/media/cmrqdsz1x00004h8jqm2xrqyd",
-            bgColorFrom: "transparent",
+            image: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=1200&q=80",
+            bgColorFrom: "#0b1221",
             bgColorTo: "#000000",
             textColor: "#ffffff"
           } as any} products={allProducts.slice(0, 4) as any} />
